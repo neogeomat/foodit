@@ -2,6 +2,8 @@ let $countrySelect = $("#countrySelect");
 
 let $citiesList = {};
 
+const $overpass_radius = 1500;
+
 var map = L.map("map", {
   center: [53.03885, 8.837961],
   minZoom: 2,
@@ -123,9 +125,38 @@ $citySelect.change(function () {
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
 
+  // load nearby citys
+  let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
+  let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius},${$city_lat},${$city_lng}););out;`;
+
+  $nearbyPlaceSelect.empty();
+  $nearbyPlaceSelect.append(`<option value="">Select a nearby place</option>`);
+  $.ajax({
+    url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
+    beforeSend: function () {
+      console.log("Loading nearby cities...");
+    },
+    success: function (data) {
+      console.log("Nearby cities loaded");
+      console.log(data);
+      data = data.split("\n");
+      data.forEach(function (item) {
+        item = item.split("@");
+        $nearbyPlaceSelect.append(
+          `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
+        );
+      });
+      map.spin(false);
+    },
+    error: function (error) {
+      alert("Error loading nearby cities");
+      map.spin(false);
+    },
+  });
+
   // load suburbs
   let $suburbSelect = $("#suburbSelect");
-  let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(node[place="suburb"](around:2000,${$city_lat},${$city_lng}););out;`;
+  let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius},${$city_lat},${$city_lng}););out;`;
 
   let url = $overpassUrl + suburbQuery;
 
@@ -151,7 +182,7 @@ $citySelect.change(function () {
 
   // load streets
   let $streetSelect = $("#streetSelect");
-  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:2000,${$city_lat},${$city_lng}););out center;`;
+  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
 
   url = $overpassUrl + streetQuery;
 
@@ -175,6 +206,19 @@ $citySelect.change(function () {
     });
 });
 
+let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
+$nearbyPlaceSelect.change(function () {
+  let $city = $nearbyPlaceSelect.val();
+  let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+  let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+  if (marker != undefined) {
+    map.removeLayer(marker);
+  }
+  marker = L.marker([$city_lat, $city_lng]);
+  marker.addTo(map);
+  centerLeafletMapOnMarker(map, marker);
+  map.setZoom(15);
+});
 let $suburbSelect = $("#suburbSelect");
 $suburbSelect.change(function () {
   let $city = $citySelect.val();
@@ -193,7 +237,9 @@ $suburbSelect.change(function () {
   centerLeafletMapOnMarker(map, start_marker);
 
   let $streetSelect = $("#streetSelect");
-  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:1000,${$city_lat},${$city_lng}););out center;`;
+  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${
+    $overpass_radius / 2
+  },${$city_lat},${$city_lng}););out center;`;
 
   $streetSelect.empty();
   $streetSelect.append(`<option value="">Select a street</option>`);
@@ -222,8 +268,8 @@ $streetSelect.change(function () {
 
   marker = L.marker([$suburb_lat, $suburb_lng]);
   marker.addTo(map);
+  centerLeafletMapOnMarker(map, marker);
   map.setZoom(17);
-  // centerLeafletMapOnMarker(map, marker);
 });
 
 // routing
