@@ -43,10 +43,13 @@ function myHandler(geojson) {
 }
 
 let photonControlOptions = {
+  url : "https://photon.komoot.de/api/",
   // resultsHandler: myHandler,
   placeholder: "Select a city",
   // position: 'topleft',
-  osm_tag: "place",
+  // osm_tag: "place:city&osm_tag=place:village&osm_tag=place:town",
+  // osm_tag: ,
+  // osm_tag: ,
   formatResult: function (feature, el) {
     var title = L.DomUtil.create("strong", "", el),
       detailsContainer = L.DomUtil.create("small", "", el),
@@ -179,6 +182,15 @@ let photonControlOptions = {
 var searchControl = L.control.photon(photonControlOptions);
 searchControl.addTo(map);
 document.getElementById("citySelect").appendChild(searchControl.getContainer());
+
+geocoder = L.Control.geocoder({
+	geocoder: L.Control.Geocoder.photon({
+		geocodingQueryParams: {
+			limit: 8,
+			osm_tag: ['place:city', 'place:town', 'place:village'],
+		}
+	})
+}).addTo(map);
 map.on("click", function (e) {
   map.contextmenu.showAt(e.latlng);
 });
