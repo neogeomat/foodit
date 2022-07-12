@@ -4,6 +4,8 @@ let $citiesList = {};
 
 const $overpass_radius = 1500;
 
+const $overpass_radius_suburb = 5000;
+
 let map = L.map("map", {
   center: [53.03885, 8.837961],
   minZoom: 2,
@@ -38,38 +40,145 @@ let map = L.map("map", {
 });
 function myHandler(geojson) {
   console.debug(geojson);
+}
+
+let photonControlOptions = {
+  // resultsHandler: myHandler,
+  placeholder: "Select a city",
+  // position: 'topleft',
+  osm_tag: "place",
+  formatResult: function (feature, el) {
+    var title = L.DomUtil.create("strong", "", el),
+      detailsContainer = L.DomUtil.create("small", "", el),
+      details = [],
+      type = this.formatType(feature);
+    if (feature.properties.name) {
+      title.innerHTML = feature.properties.name;
+    } else if (feature.properties.housenumber) {
+      title.innerHTML = feature.properties.housenumber;
+      if (feature.properties.street) {
+        title.innerHTML += " " + feature.properties.street;
+      }
+    }
+    // if (type) details.push(type);
+    if (
+      feature.properties.city &&
+      feature.properties.city !== feature.properties.name
+    ) {
+      details.push(feature.properties.city);
+    }
+    if (feature.properties.country) details.push(feature.properties.country);
+    // detailsContainer.innerHTML = details.join(', ');
+    title.innerHTML += ", " + details.join(", ");
+  },
+  onSelected: function (feature) {
+    // map.spin(true);
+    // let $city = $citySelect.val();
+    let $city = feature.properties.name;
+    this.input.value = $city;
+
+    // //get selected latlng
+    // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+    // let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+    let $city_lat = feature.geometry.coordinates[1];
+    let $city_lng = feature.geometry.coordinates[0];
+
+    if (marker != undefined) {
+      map.removeLayer(marker);
+    }
+    marker = L.marker([$city_lat, $city_lng]);
+    marker.addTo(map);
+    centerLeafletMapOnMarker(map, marker);
+    map.setZoom(15);
+
+    // load nearby citys
+    let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
+    let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
+
+    $nearbyPlaceSelect.empty();
+    $nearbyPlaceSelect.append(
+      `<option value="">Select a nearby place</option>`
+    );
+    $.ajax({
+      url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
+      beforeSend: function () {
+        console.log("Loading nearby cities...");
+        map.spin(true);
+      },
+      success: function (data) {
+        console.log("Nearby cities loaded");
+        console.log(data);
+        data = data.split("\n");
+        data.forEach(function (item) {
+          item = item.split("@");
+          $nearbyPlaceSelect.append(
+            `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
+          );
+        });
+        map.spin(false);
+      },
+      error: function (error) {
+        alert("Error loading nearby cities");
+        map.spin(false);
+      },
+    });
+
+    // load suburbs
+    let $suburbSelect = $("#suburbSelect");
+    let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
+
+    let url = $overpassUrl + encodeURIComponent(suburbQuery);
+
+    $suburbSelect.empty();
+    $suburbSelect.append(`<option value="">Select a suburb</option>`);
+    $.ajax({
+      url: url,
+      success: function (data) {
+        console.log(data);
+        data = data.split("\n");
+        data.forEach(function (item) {
+          item = item.split("@");
+          $suburbSelect.append(
+            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+          );
+        });
+        map.spin(false);
+      },
+    }).fail(function (error) {
+      alert("Error loading suburbs");
+      map.spin(false);
+    });
+
+    // load streets
+    let $streetSelect = $("#streetSelect");
+    let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
+
+    url = $overpassUrl + encodeURIComponent(streetQuery);
+
+    $streetSelect.empty();
+    $streetSelect.append(`<option value="">Select a Street</option>`);
+    $.get(url)
+      .done(function (data) {
+        console.log(data);
+        data = data.split("\n");
+        data.forEach(function (item) {
+          item = item.split("@");
+          $streetSelect.append(
+            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+          );
+        });
+        map.spin(false);
+      })
+      .fail(function (error) {
+        alert("Error loading suburbs");
+        map.spin(false);
+      });
+  },
 };
 
-let photonControlOptions= {
-  resultsHandler: myHandler,
-  placeholder: 'Select a city',
-  // position: 'topleft',
-  osm_tag: 'place',
-  formatResult: function (feature, el) {
-      var title = L.DomUtil.create('strong', '', el),
-          detailsContainer = L.DomUtil.create('small', '', el),
-          details = [],
-          type = this.formatType(feature);
-      if (feature.properties.name) {
-          title.innerHTML = feature.properties.name;
-      } else if (feature.properties.housenumber) {
-          title.innerHTML = feature.properties.housenumber;
-          if (feature.properties.street) {
-              title.innerHTML += ' ' + feature.properties.street;
-          }
-      }
-      // if (type) details.push(type);
-      if (feature.properties.city && feature.properties.city !== feature.properties.name) {
-          details.push(feature.properties.city);
-      }
-      if (feature.properties.country) details.push(feature.properties.country);
-      // detailsContainer.innerHTML = details.join(', ');
-      title.innerHTML += ", "+details.join(', ');
-  }
-};
 var searchControl = L.control.photon(photonControlOptions);
 searchControl.addTo(map);
-document.getElementById('citySelect').appendChild(searchControl.getContainer())
+document.getElementById("citySelect").appendChild(searchControl.getContainer());
 map.on("click", function (e) {
   map.contextmenu.showAt(e.latlng);
 });
@@ -80,39 +189,40 @@ L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   subdomains: ["a", "b", "c"],
 }).addTo(map);
 
-$.ajax({
-  url: "data/cities&towns&villages_south2.csv",
-  // url: "data/cities&towns&villages.csv",
-  beforeSend: function () {
-    console.log("Loading cities and towns...");
-  },
-  success: function (data) {
-    // debugger;
-    let lines = data.split("\r\n");
-    for (let i = 1; i < lines.length; i++) {
-      let line = lines[i];
-      let parts = line.split(",");
-      let lng = parts[0];
-      let lat = parts[1];
-      let osm_id = parts[2];
-      let name = parts[3];
-      if (!$citiesList["Germany"]) {
-        $citiesList["Germany"] = {};
-      }
-      $citiesList["Germany"][name ? name.trimEnd() : ""] = {
-        lat: lat,
-        lng: lng,
-        osm_id: osm_id,
-        name: name ? name.trimEnd() : "",
-      };
-    }
-  },
-  error: function (error) {
-    alert("Error loading cities and towns");
-  },
-});
+// $.ajax({
+//   url: "data/cities&towns&villages_south2.csv",
+//   // url: "data/cities&towns&villages.csv",
+//   beforeSend: function () {
+//     console.log("Loading cities and towns...");
+//   },
+//   success: function (data) {
+//     // debugger;
+//     let lines = data.split("\r\n");
+//     for (let i = 1; i < lines.length; i++) {
+//       let line = lines[i];
+//       let parts = line.split(",");
+//       let lng = parts[0];
+//       let lat = parts[1];
+//       let osm_id = parts[2];
+//       let name = parts[3];
+//       if (!$citiesList["Germany"]) {
+//         $citiesList["Germany"] = {};
+//       }
+//       $citiesList["Germany"][name ? name.trimEnd() : ""] = {
+//         lat: lat,
+//         lng: lng,
+//         osm_id: osm_id,
+//         name: name ? name.trimEnd() : "",
+//       };
+//     }
+//   },
+//   error: function (error) {
+//     alert("Error loading cities and towns");
+//   },
+// });
 
-let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
+// let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
+let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
 $countrySelect.change(function () {
   map.spin(true);
   let $country = $countrySelect.val();
@@ -191,7 +301,7 @@ $citySelect.change(function () {
   let $suburbSelect = $("#suburbSelect");
   let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius},${$city_lat},${$city_lng}););out;`;
 
-  let url = $overpassUrl + suburbQuery;
+  let url = $overpassUrl + encodeURIComponent(suburbQuery);
 
   $suburbSelect.empty();
   $suburbSelect.append(`<option value="">Select a suburb</option>`);
@@ -217,7 +327,7 @@ $citySelect.change(function () {
   let $streetSelect = $("#streetSelect");
   let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
 
-  url = $overpassUrl + streetQuery;
+  url = $overpassUrl + encodeURIComponent(streetQuery);
 
   $streetSelect.empty();
   $streetSelect.append(`<option value="">Select a Street</option>`);
@@ -276,7 +386,7 @@ $suburbSelect.change(function () {
 
   $streetSelect.empty();
   $streetSelect.append(`<option value="">Select a street</option>`);
-  let url = $overpassUrl + query;
+  let url = $overpassUrl + encodeURIComponent(query);
   $.get(url, function (data) {
     console.log("suburb", data);
     data = data.split("\n");
