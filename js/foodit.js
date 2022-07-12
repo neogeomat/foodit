@@ -4,7 +4,7 @@ let $citiesList = {};
 
 const $overpass_radius = 1500;
 
-var map = L.map("map", {
+let map = L.map("map", {
   center: [53.03885, 8.837961],
   minZoom: 2,
   zoom: 12,
@@ -36,7 +36,40 @@ var map = L.map("map", {
     },
   ],
 });
+function myHandler(geojson) {
+  console.debug(geojson);
+};
 
+let photonControlOptions= {
+  resultsHandler: myHandler,
+  placeholder: 'Select a city',
+  // position: 'topleft',
+  osm_tag: 'place',
+  formatResult: function (feature, el) {
+      var title = L.DomUtil.create('strong', '', el),
+          detailsContainer = L.DomUtil.create('small', '', el),
+          details = [],
+          type = this.formatType(feature);
+      if (feature.properties.name) {
+          title.innerHTML = feature.properties.name;
+      } else if (feature.properties.housenumber) {
+          title.innerHTML = feature.properties.housenumber;
+          if (feature.properties.street) {
+              title.innerHTML += ' ' + feature.properties.street;
+          }
+      }
+      // if (type) details.push(type);
+      if (feature.properties.city && feature.properties.city !== feature.properties.name) {
+          details.push(feature.properties.city);
+      }
+      if (feature.properties.country) details.push(feature.properties.country);
+      // detailsContainer.innerHTML = details.join(', ');
+      title.innerHTML += ", "+details.join(', ');
+  }
+};
+var searchControl = L.control.photon(photonControlOptions);
+searchControl.addTo(map);
+document.getElementById('citySelect').appendChild(searchControl.getContainer())
 map.on("click", function (e) {
   map.contextmenu.showAt(e.latlng);
 });

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="css/leaflet.contextmenu.css" />
     <link rel="stylesheet" href="css/leaflet.contextmenu.min.css" />
+    <link rel="stylesheet" href="css/leaflet.photon.css">
 
 
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
@@ -22,17 +23,18 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <select id="countrySelect">
+          <!-- <select id="countrySelect">
             <option value="">Select a country</option>
             <option value="France">France</option>
             <option value="Germany">Germany</option>
-          </select>
-          <select id="citySelect">
+          </select> -->
+          <!-- <select id="citySelect">
             <option value="">Select a city</option>
-          </select>
-          <select id="nearbyPlaceSelect">
+          </select> -->
+          <span id="citySelect"></span>
+          <!-- <select id="nearbyPlaceSelect">
             <option value="">Select nearby city</option>
-          </select>
+          </select> -->
           <select id="suburbSelect">
             <option value="">Select a suburb</option>
           </select>
@@ -47,5 +49,6 @@
   </body>
   <script src="js/spin.min.js"></script>
   <script src="js/leaflet.spin.js"></script>
+  <script src="js/leaflet.photon.js"></script>
   <script src="js/foodit.js"></script>
 </html>
