@@ -71,8 +71,7 @@ let photonControlOptions = {
     // detailsContainer.innerHTML = details.join(', ');
     title.innerHTML += ", " + details.join(", ");
   },
-  onSelected: 
-  function (feature) {
+  onSelected: function (feature) {
     // map.spin(true);
     // let $city = $citySelect.val();
     let $city = feature.properties.name;
@@ -108,7 +107,7 @@ let photonControlOptions = {
       },
       success: function (data) {
         console.log("Nearby cities loaded");
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -135,7 +134,7 @@ let photonControlOptions = {
     $.ajax({
       url: url,
       success: function (data) {
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -160,7 +159,7 @@ let photonControlOptions = {
     $streetSelect.append(`<option value="">Select a Street</option>`);
     $.get(url)
       .done(function (data) {
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -184,14 +183,14 @@ let photonControlOptions = {
 geocoder = L.Control.geocoder({
   collapsed: false,
   suggestMinLength: 3,
-  errorMessage: '',
+  errorMessage: "",
   geocoder: L.Control.Geocoder.photon({
     geocodingQueryParams: {
       osm_tag: ["place:city", "place:town", "place:village"],
-      lat:48.9987,
-      lon:8.4045,
-      zoom:10,
-      location_bias_scale:0.5
+      lat: 48.9987,
+      lon: 8.4045,
+      zoom: 10,
+      location_bias_scale: 0.5,
     },
     // htmlTemplate: function (r) {
     //   if (r.properties.country == "Germany") {
@@ -202,22 +201,19 @@ geocoder = L.Control.geocoder({
     // },
   }),
 }).addTo(map);
-geocoder.options.geocoder._decodeFeatures = function (data) {
+(geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
   // debugger;
   if (data && data.features) {
     for (var i = 0; i < data.features.length; i++) {
       var f = data.features[i];
-      
+
       if (f.properties.country == "Germany") {
         var c = f.geometry.coordinates;
         var center = L.latLng(c[1], c[0]);
         var extent = f.properties.extent;
         var bbox = extent
-          ? L.latLngBounds(
-              [extent[1], extent[0]],
-              [extent[3], extent[2]]
-            )
+          ? L.latLngBounds([extent[1], extent[0]], [extent[3], extent[2]])
           : L.latLngBounds(center, center);
         results.push({
           name: this._decodeFeatureName(f),
@@ -231,19 +227,16 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
       }
     }
   }
-  console.log(data.features);
-  console.table(results);
+  // console.log(data.features);
+  // console.table(results);
   return results;
-},
-
-// geocoder.geocoder.query('pass-a-search-string-criteria', showResult);
-geocoder.on("markgeocode", function (e) {
-  console.log(e);
-  feature = e.geocode;
-    // map.spin(true);
-    // let $city = $citySelect.val();
+}),
+  geocoder.on("markgeocode", function (e) {
+    // console.log(e);
+    feature = e.geocode;
     let $city = feature.properties.name;
-    this.input.value = $city;
+    // this.input.value = $city;
+    this._form.innerText = $city;
 
     // //get selected latlng
     // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
@@ -277,7 +270,7 @@ geocoder.on("markgeocode", function (e) {
       },
       success: function (data) {
         console.log("Nearby cities loaded");
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -304,7 +297,7 @@ geocoder.on("markgeocode", function (e) {
     $.ajax({
       url: url,
       success: function (data) {
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -329,7 +322,7 @@ geocoder.on("markgeocode", function (e) {
     $streetSelect.append(`<option value="">Select a Street</option>`);
     $.get(url)
       .done(function (data) {
-        console.log(data);
+        // console.log(data);
         data = data.split("\n");
         data.forEach(function (item) {
           item = item.split("@");
@@ -343,8 +336,7 @@ geocoder.on("markgeocode", function (e) {
         alert("Error loading suburbs");
         map.spin(false);
       });
-  }
-);
+  });
 
 document.getElementById("citySelect").appendChild(geocoder.getContainer());
 map.on("click", function (e) {
@@ -500,7 +492,7 @@ $nearbyPlaceSelect.change(function () {
 });
 let $suburbSelect = $("#suburbSelect");
 $suburbSelect.change(function () {
-  let $city = $citySelect.val();
+  let $city = geocoder._form.innerText;
   let $suburb = $suburbSelect.val();
 
   if (marker != undefined) {
@@ -524,7 +516,7 @@ $suburbSelect.change(function () {
   $streetSelect.append(`<option value="">Select a street</option>`);
   let url = $overpassUrl + encodeURIComponent(query);
   $.get(url, function (data) {
-    console.log("suburb", data);
+    // console.log("suburb", data);
     data = data.split("\n");
     let i = 1;
     data.forEach(function (item) {
