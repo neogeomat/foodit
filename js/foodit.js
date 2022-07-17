@@ -644,11 +644,11 @@ var yellowIcon = new L.Icon({
 });
 
 function startMap(e) {
-  if (start_marker != null) {
-    map.removeLayer(start_marker);
-  }
-  start_marker = new L.Marker(e.latlng,{icon: greenIcon});
-  start_marker.addTo(map);
+  // if (start_marker != null) {
+  //   map.removeLayer(start_marker);
+  // }
+  // start_marker = new L.Marker(e.latlng,{icon: greenIcon});
+  // start_marker.addTo(map);
   start_pt = e.latlng;
   routingControl.spliceWaypoints(0, 1, e.latlng);
 }
@@ -660,11 +660,11 @@ var removeRoutingControl = function () {
   }
 };
 function endMap(e) {
-  if(end_marker != null){
-    map.removeLayer(end_marker);
-  }
-  end_marker = new L.Marker(e.latlng,{icon: redIcon});
-  end_marker.addTo(map);
+  // if(end_marker != null){
+  //   map.removeLayer(end_marker);
+  // }
+  // end_marker = new L.Marker(e.latlng,{icon: redIcon});
+  // end_marker.addTo(map);
   routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1, e.latlng);
 }
 
