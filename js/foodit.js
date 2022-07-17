@@ -549,17 +549,42 @@ routingControl = L.Routing.control({
   // waypoints: [L.latLng(start_pt), L.latLng(e.latlng.lat, e.latlng.lng)],
   routeWhileDragging: true,
   collapsible: true,
+  geocoder: geocoder.options.geocoder,
+  // plan: L.Routing.Plan({
+  //   reverseWaypoints: true,
+  // })
   //autoRoute: true, // possibility to take autoRoute
-  // createMarker: function (i, wp, nWps) {
-  //   if (i == 0) {
-  //     return L.marker(wp.latLng, { icon: greenIcon, draggable: true });
-  //   } else {
-  //     return L.marker(wp.latLng, { icon: redIcon, draggable: true });
-  //   }
-  // },
+  createMarker: function (i, start, n){
+    var marker_icon = null;
+    if (i == 0) {
+        // This is the first marker, indicating start
+        marker_icon = greenIcon;
+    } else if (i == n -1) {
+        //This is the last marker indicating destination
+        marker_icon = redIcon;
+    }else{
+        //This is a intermediary marker
+        marker_icon = orangeIcon;
+    }
+    var marker = L.marker (start.latLng, {
+                draggable: true,
+                bounceOnAdd: false,
+                bounceOnAddOptions: {
+                    duration: 1000,
+                    height: 800, 
+                    function(){
+                        (bindPopup(myPopup).openOn(map))
+                    }
+                },
+                icon: marker_icon
+              });
+    return marker
+  },
 }).addTo(map);
 var start_pt;
+var end_pt;
 var start_marker = null;
+var end_marker = null;
 
 function editFeature(feature, layer) {
   console.log(JSON.stringify(feature.properties));
@@ -568,22 +593,6 @@ function editFeature(feature, layer) {
 function showAssetInfo(e) {
   AssetMouseClick(e.target.feature.properties.objectid, e.latlng);
 }
-
-function startMap(e) {
-  if (start_marker != null) {
-    map.removeLayer(start_marker);
-  }
-  start_marker = new L.Marker(e.latlng);
-  start_marker.addTo(map);
-  start_pt = e.latlng;
-}
-var routingControl = null;
-var removeRoutingControl = function () {
-  if (routingControl != null) {
-    map.removeControl(routingControl);
-    routingControl = null;
-  }
-};
 
 var redIcon = new L.Icon({
   iconUrl:
@@ -606,15 +615,46 @@ var greenIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
-function endMap(e) {
-  if (routingControl != null) {
-    removeRoutingControl();
+
+var orangeIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+
+function startMap(e) {
+  if (start_marker != null) {
+    map.removeLayer(start_marker);
   }
-  map.removeLayer(start_marker);
+  start_marker = new L.Marker(e.latlng,{icon: greenIcon});
+  start_marker.addTo(map);
+  start_pt = e.latlng;
+  routingControl.spliceWaypoints(0, 1, e.latlng);
+}
+// var routingControl = null;
+var removeRoutingControl = function () {
+  if (routingControl != null) {
+    map.removeControl(routingControl);
+    routingControl = null;
+  }
+};
+function endMap(e) {
+  if(end_marker != null){
+    map.removeLayer(end_marker);
+  }
+  end_marker = new L.Marker(e.latlng,{icon: redIcon});
+  end_marker.addTo(map);
+  routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1, e.latlng);
 }
 
 function intermediateMap(e) {
-  map.zoomIn();
+  routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 0, e.latlng);
 }
 
 function closeMap(e) {
