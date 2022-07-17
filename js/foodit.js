@@ -31,6 +31,11 @@ let map = L.map("map", {
       callback: intermediateMap,
     },
     {
+      text: "Optional",
+      //icon: 'copy',
+      callback: optionalMap,
+    },
+    {
       separator: true,
     },
     {
@@ -544,7 +549,7 @@ $streetSelect.change(function () {
 });
 
 // routing
-
+var optionalMarkerGroup = L.layerGroup().addTo(map);
 routingControl = L.Routing.control({
   // waypoints: [L.latLng(start_pt), L.latLng(e.latlng.lat, e.latlng.lng)],
   routeWhileDragging: true,
@@ -627,6 +632,16 @@ var orangeIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+var yellowIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 function startMap(e) {
   if (start_marker != null) {
@@ -655,6 +670,11 @@ function endMap(e) {
 
 function intermediateMap(e) {
   routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 0, e.latlng);
+}
+
+function optionalMap(e) {
+  optionalMarker = new L.Marker(e.latlng,{icon: yellowIcon});
+  optionalMarker.addTo(optionalMarkerGroup);
 }
 
 function closeMap(e) {
