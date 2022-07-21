@@ -209,11 +209,15 @@ geocoder = L.Control.geocoder({
 geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
   // debugger;
+  var selectedCountry = $("#countrySelect").val();
+  if(!selectedCountry) {
+    alert("Please select a country first");
+  }
   if (data && data.features) {
     for (var i = 0; i < data.features.length; i++) {
       var f = data.features[i];
 
-      if (f.properties.countrycode == "DE") {
+      if (f.properties.countrycode == selectedCountry) {
         var c = f.geometry.coordinates;
         var center = L.latLng(c[1], c[0]);
         var extent = f.properties.extent;

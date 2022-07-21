@@ -20,61 +20,86 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
   </head>
   <body>
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <h1>Start
-            <input type="text" id="start" placeholder="Start" />
-          </h1>
-          <h1>End
-            <input type="text" id="end" placeholder="End" />
-          </h1>
-          <h1>Intermediate
+          <h4>Start
+            <input type="text" id="start" placeholder="Start" class = 'waypointAddresses'/>
+            </h4><h4>
+          End
+            <input type="text" id="end" placeholder="End" class = 'waypointAddresses'/>
+          </h4>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h4>Intermediate
             <ol><li>
-              <input type="text" id="intermediate" placeholder="intermediate" />
-            
-          </h1>
-          <h1>Optional
+              <input type="text" id="intermediate" placeholder="intermediate" class = 'waypointAddresses'/>
+            </ol></li>
+          </h4>
+        </div>
+        <div class="col-md-12">
+          <h4>
+            Optional
             <ol><li>
-            <input type="text" id="optional" placeholder="optional" />
+            <input type="text" id="optional" placeholder="optional" class = 'waypointAddresses'/>
           </li></ol>
-          </h1>
-
+        </h4>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
           <div id = "selectMenu">
             <select id="countrySelect">
               <option value="">Select a country</option>
               <option value="FR">France</option>
               <option value="DE">Germany</option>
             </select>
-          <!-- </br>
-            <select id="citySelect">
-              <option value="">Select a city</option>
-            </select> -->
-          </br>
+          
             <div id="citySelect"></div>
-          </br>
+          
             <select id="nearbyPlaceSelect">
               <option value="">Select nearby city</option>
             </select>
-          </br>
+          
             <select id="suburbSelect">
               <option value="">Select a suburb</option>
             </select>
-          </br>
+          
             <select id="streetSelect">
               <option value="">Select a Street</option>
             </select>
           </div>
         </div>
-        <div class="col-md-12"></div>
+        <div class="col-md-9"></div>
+        <div id="map" class="col-md-12" style=" height: 1000px;"></div>
       </div>
-      <div id="map" style="width: 100%; height: 1000px;"></div>
     </div>
+    
   </body>
   <script src="js/spin.min.js"></script>
   <script src="js/leaflet.spin.js"></script>
   <script src="js/leaflet.photon.js"></script>
   <script src="js/foodit.js"></script>
+  <script>
+    var $startInput = $('#start');
+    var $endInput = $('#end');
+    var $intermediateInput = $('#intermediate');
+    var $optionalInput = $('#optional');
+
+    var $selectMenu = $('#selectMenu');
+    var $waypointAddressesInput = $('.waypointAddresses');
+    $waypointAddressesInput.click(function(element) {
+      var $input = $(element.target);
+      $input.select();
+      element.target.after($selectMenu[0]);
+    });
+  </script>
 </html>
