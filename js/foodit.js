@@ -206,7 +206,7 @@ geocoder = L.Control.geocoder({
     // },
   }),
 }).addTo(map);
-(geocoder.options.geocoder._decodeFeatures = function (data) {
+geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
   // debugger;
   if (data && data.features) {
@@ -235,113 +235,111 @@ geocoder = L.Control.geocoder({
   // console.log(data.features);
   // console.table(results);
   return results;
-}),
-  geocoder.on("markgeocode", function (e) {
-    // console.log(e);
-    feature = e.geocode;
-    let $city = feature.properties.name;
-    // this.input.value = $city;
-    this._form.innerText = $city;
+};
+geocoder.on("markgeocode", function (e) {
+  // console.log(e);
+  feature = e.geocode;
+  let $city = feature.properties.name;
+  // this.input.value = $city;
+  this._form.innerText = $city;
 
-    // //get selected latlng
-    // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
-    // let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
-    // let $city_lat = feature.geometry.coordinates[1];
-    // let $city_lng = feature.geometry.coordinates[0];
-    let $city_lat = feature.center.lat;
-    let $city_lng = feature.center.lng;
+  // //get selected latlng
+  // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+  // let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+  // let $city_lat = feature.geometry.coordinates[1];
+  // let $city_lng = feature.geometry.coordinates[0];
+  let $city_lat = feature.center.lat;
+  let $city_lng = feature.center.lng;
 
-    if (marker != undefined) {
-      map.removeLayer(marker);
-    }
-    marker = L.marker([$city_lat, $city_lng]);
-    marker.addTo(map);
-    centerLeafletMapOnMarker(map, marker);
-    map.setZoom(15);
+  if (marker != undefined) {
+    map.removeLayer(marker);
+  }
+  marker = L.marker([$city_lat, $city_lng]);
+  marker.addTo(map);
+  centerLeafletMapOnMarker(map, marker);
+  map.setZoom(15);
 
-    // load nearby citys
-    let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
-    let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
+  // load nearby citys
+  let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
+  let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
 
-    $nearbyPlaceSelect.empty();
-    $nearbyPlaceSelect.append(
-      `<option value="">Select a nearby place</option>`
-    );
-    $.ajax({
-      url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
-      beforeSend: function () {
-        console.log("Loading nearby cities...");
-        map.spin(true);
-      },
-      success: function (data) {
-        console.log("Nearby cities loaded");
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $nearbyPlaceSelect.append(
-            `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      },
-      error: function (error) {
-        alert("Error loading nearby cities");
-        map.spin(false);
-      },
-    });
+  $nearbyPlaceSelect.empty();
+  $nearbyPlaceSelect.append(`<option value="">Select a nearby place</option>`);
+  $.ajax({
+    url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
+    beforeSend: function () {
+      console.log("Loading nearby cities...");
+      map.spin(true);
+    },
+    success: function (data) {
+      console.log("Nearby cities loaded");
+      // console.log(data);
+      data = data.split("\n");
+      data.forEach(function (item) {
+        item = item.split("@");
+        $nearbyPlaceSelect.append(
+          `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
+        );
+      });
+      map.spin(false);
+    },
+    error: function (error) {
+      alert("Error loading nearby cities");
+      map.spin(false);
+    },
+  });
 
-    // load suburbs
-    let $suburbSelect = $("#suburbSelect");
-    let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
+  // load suburbs
+  let $suburbSelect = $("#suburbSelect");
+  let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
 
-    let url = $overpassUrl + encodeURIComponent(suburbQuery);
+  let url = $overpassUrl + encodeURIComponent(suburbQuery);
 
-    $suburbSelect.empty();
-    $suburbSelect.append(`<option value="">Select a suburb</option>`);
-    $.ajax({
-      url: url,
-      success: function (data) {
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $suburbSelect.append(
-            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      },
-    }).fail(function (error) {
+  $suburbSelect.empty();
+  $suburbSelect.append(`<option value="">Select a suburb</option>`);
+  $.ajax({
+    url: url,
+    success: function (data) {
+      // console.log(data);
+      data = data.split("\n");
+      data.forEach(function (item) {
+        item = item.split("@");
+        $suburbSelect.append(
+          `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+        );
+      });
+      map.spin(false);
+    },
+  }).fail(function (error) {
+    alert("Error loading suburbs");
+    map.spin(false);
+  });
+
+  // load streets
+  let $streetSelect = $("#streetSelect");
+  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
+
+  url = $overpassUrl + encodeURIComponent(streetQuery);
+
+  $streetSelect.empty();
+  $streetSelect.append(`<option value="">Select a Street</option>`);
+  $.get(url)
+    .done(function (data) {
+      // console.log(data);
+      data = data.split("\n");
+      data.forEach(function (item) {
+        item = item.split("@");
+        $streetSelect.append(
+          `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+        );
+      });
+      map.spin(false);
+    })
+    .fail(function (error) {
       alert("Error loading suburbs");
       map.spin(false);
     });
-
-    // load streets
-    let $streetSelect = $("#streetSelect");
-    let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
-
-    url = $overpassUrl + encodeURIComponent(streetQuery);
-
-    $streetSelect.empty();
-    $streetSelect.append(`<option value="">Select a Street</option>`);
-    $.get(url)
-      .done(function (data) {
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $streetSelect.append(
-            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      })
-      .fail(function (error) {
-        alert("Error loading suburbs");
-        map.spin(false);
-      });
-  });
+});
 
 document.getElementById("citySelect").appendChild(geocoder.getContainer());
 map.on("click", function (e) {
@@ -551,39 +549,51 @@ $streetSelect.change(function () {
 // routing
 var optionalMarkerGroup = L.layerGroup().addTo(map);
 routingControl = L.Routing.control({
-  // waypoints: [L.latLng(start_pt), L.latLng(e.latlng.lat, e.latlng.lng)],
+  geocodersClassName: "routing_geocoders",
   routeWhileDragging: true,
   collapsible: true,
   geocoder: geocoder.options.geocoder,
-  // plan: L.Routing.Plan({
-  //   reverseWaypoints: true,
-  // })
+  reverseWaypoints: true,
   //autoRoute: true, // possibility to take autoRoute
-  createMarker: function (i, start, n){
+  createMarker: function (i, m, n) {
     var marker_icon = null;
     if (i == 0) {
-        // This is the first marker, indicating start
-        marker_icon = greenIcon;
-    } else if (i == n -1) {
-        //This is the last marker indicating destination
-        marker_icon = redIcon;
-    }else{
-        //This is a intermediary marker
-        marker_icon = orangeIcon;
+      // This is the first marker, indicating the start point.
+      marker_icon = greenIcon;
+    } else if (i == n - 1) {
+      //This is the last marker indicating destination
+      marker_icon = redIcon;
+    } else {
+      //This is a intermediary marker
+      marker_icon = orangeIcon;
     }
-    var marker = L.marker (start.latLng, {
-                draggable: true,
-                bounceOnAdd: false,
-                bounceOnAddOptions: {
-                    duration: 1000,
-                    height: 800, 
-                    function(){
-                        (bindPopup(myPopup).openOn(map))
-                    }
-                },
-                icon: marker_icon
-              });
-    return marker
+    var marker = L.marker(m.latLng, {
+      draggable: true,
+      bounceOnAdd: false,
+      bounceOnAddOptions: {
+        duration: 1000,
+        height: 800,
+        function() {
+          bindPopup(myPopup).openOn(map);
+        },
+      },
+      icon: marker_icon,
+    });
+    return marker;
+  },
+  geocoderClass: function (index, n, plan) {
+    var geocoder_class = "";
+    if (index == 0) {
+      // This is the first marker, indicating the start point.
+      geocoder_class = "start_geocoder";
+    } else if (index == n - 1) {
+      //This is the last marker indicating destination
+      geocoder_class = "end_geocoder";
+    } else {
+      //This is a intermediary marker
+      geocoder_class = "intermediary_geocoder";
+    }
+    return geocoder_class;
   },
 }).addTo(map);
 var start_pt;
@@ -665,15 +675,23 @@ function endMap(e) {
   // }
   // end_marker = new L.Marker(e.latlng,{icon: redIcon});
   // end_marker.addTo(map);
-  routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1, e.latlng);
+  routingControl.spliceWaypoints(
+    routingControl.getWaypoints().length - 1,
+    1,
+    e.latlng
+  );
 }
 
 function intermediateMap(e) {
-  routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 0, e.latlng);
+  routingControl.spliceWaypoints(
+    routingControl.getWaypoints().length - 1,
+    0,
+    e.latlng
+  );
 }
 
 function optionalMap(e) {
-  optionalMarker = new L.Marker(e.latlng,{icon: yellowIcon});
+  optionalMarker = new L.Marker(e.latlng, { icon: yellowIcon });
   optionalMarker.addTo(optionalMarkerGroup);
 }
 
