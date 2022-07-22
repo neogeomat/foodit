@@ -92,7 +92,7 @@ let photonControlOptions = {
       map.removeLayer(marker);
     }
     marker = L.marker([$city_lat, $city_lng]);
-    marker.addTo(map);
+    // marker.addTo(map);
     centerLeafletMapOnMarker(map, marker);
     map.setZoom(15);
 
@@ -184,7 +184,9 @@ let photonControlOptions = {
 // var searchControl = L.control.photon(photonControlOptions);
 // searchControl.addTo(map);
 // document.getElementById("citySelect").appendChild(searchControl.getContainer());
-
+osm = new L.Control.Geocoder.Nominatim({
+  geocodingQueryParams: { limit: 2 }
+})
 geocoder = L.Control.geocoder({
   collapsed: false,
   suggestMinLength: 3,
@@ -259,7 +261,7 @@ geocoder.on("markgeocode", function (e) {
     map.removeLayer(marker);
   }
   marker = L.marker([$city_lat, $city_lng]);
-  marker.addTo(map);
+  // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
 
@@ -493,7 +495,7 @@ $nearbyPlaceSelect.change(function () {
     map.removeLayer(marker);
   }
   marker = L.marker([$city_lat, $city_lng]);
-  marker.addTo(map);
+  // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
 });
@@ -545,7 +547,7 @@ $streetSelect.change(function () {
   let $suburb_lng = parseFloat($(this).find(":selected").attr("data-lng"));
 
   marker = L.marker([$suburb_lat, $suburb_lng]);
-  marker.addTo(map);
+  // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(17);
 });
@@ -665,6 +667,7 @@ function startMap(e) {
   // start_marker.addTo(map);
   start_pt = e.latlng;
   routingControl.spliceWaypoints(0, 1, e.latlng);
+  // $("#start").val(routingControl.getPlan().getWaypoints()[0].name);
 }
 // var routingControl = null;
 var removeRoutingControl = function () {
@@ -692,13 +695,50 @@ function intermediateMap(e) {
     0,
     e.latlng
   );
+  $("#intermediate").empty();
+  for(var i = 1; i < routingControl.getWaypoints().length -1; i++){
+    $li = $("<li>");
+    $input = $("<input>");
+    $input.attr("id", "intermediate" + i);
+    $input.attr("type", "text");
+    $input.attr("value", routingControl.getWaypoints()[i].name);
+    $input.attr("class", "intermediate");
+    $input.attr("onchange", "updateIntermediate(" + i + ")");
+    $li.append($input);
+    $("#intermediate").append($li);
+  }
 }
 
 function optionalMap(e) {
   optionalMarker = new L.Marker(e.latlng, { icon: yellowIcon });
   optionalMarker.addTo(optionalMarkerGroup);
+  // $("#optional").empty();
+  osm.reverse(optionalMarker.getLatLng(),18,e=>{
+    console.log(e);
+    $li = $("<li>");
+    $input = $("<input>");
+    // $li.attr("id", "optional" + i);
+    $input.attr("type", "text");
+    $input.attr("value", e[0].name);
+    $input.attr("class", "optional");
+    // $input.attr("onchange", "updateoptional(" + i + ")");
+    $li.append($input);
+    $("#optional").append($li);
+  });
+  
 }
 
+routingControl.getPlan().on("waypointgeocoded", function (e) {
+  if(e.waypointIndex == 0){
+    $("#start").val(e.waypoint.name);
+  }else if(e.waypointIndex == routingControl.getWaypoints().length - 1){
+    $("#end").val(e.waypoint.name);
+  }else{
+    $("#intermediate"+e.waypointIndex).val(e.waypoint.name);
+    // console.log($("#intermediate"+e.waypointIndex));
+  }
+}
+);
 function closeMap(e) {
   map.zoomOut();
 }
