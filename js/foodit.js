@@ -185,8 +185,8 @@ let photonControlOptions = {
 // searchControl.addTo(map);
 // document.getElementById("citySelect").appendChild(searchControl.getContainer());
 osm = new L.Control.Geocoder.Nominatim({
-  geocodingQueryParams: { limit: 2 }
-})
+  geocodingQueryParams: { limit: 1 },
+});
 geocoder = L.Control.geocoder({
   collapsed: false,
   suggestMinLength: 3,
@@ -212,7 +212,7 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
   // debugger;
   var selectedCountry = $("#countrySelect").val();
-  if(!selectedCountry) {
+  if (!selectedCountry) {
     alert("Please select a country first");
   }
   if (data && data.features) {
@@ -696,7 +696,7 @@ function intermediateMap(e) {
     e.latlng
   );
   $("#intermediate").empty();
-  for(var i = 1; i < routingControl.getWaypoints().length -1; i++){
+  for (var i = 1; i < routingControl.getWaypoints().length - 1; i++) {
     $li = $("<li>");
     $input = $("<input>");
     $input.attr("id", "intermediate" + i);
@@ -713,32 +713,35 @@ function optionalMap(e) {
   optionalMarker = new L.Marker(e.latlng, { icon: yellowIcon });
   optionalMarker.addTo(optionalMarkerGroup);
   // $("#optional").empty();
-  osm.reverse(optionalMarker.getLatLng(),18,e=>{
+  osm.reverse(optionalMarker.getLatLng(), 18, (e) => {
     console.log(e);
+    optionalMarker.name = e[0].name;
+    $("#optional").empty();
+  for (var i = 0; i < optionalMarkerGroup.getLayers().length; i++) {
     $li = $("<li>");
     $input = $("<input>");
-    // $li.attr("id", "optional" + i);
+    $input.attr("id", "optional" + i);
     $input.attr("type", "text");
-    $input.attr("value", e[0].name);
+    $input.attr("value", optionalMarkerGroup.getLayers()[i].name);
     $input.attr("class", "optional");
-    // $input.attr("onchange", "updateoptional(" + i + ")");
+    $input.attr("onchange", "updateOptional(" + i + ")");
     $li.append($input);
     $("#optional").append($li);
+  }
   });
   
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
-  if(e.waypointIndex == 0){
+  if (e.waypointIndex == 0) {
     $("#start").val(e.waypoint.name);
-  }else if(e.waypointIndex == routingControl.getWaypoints().length - 1){
+  } else if (e.waypointIndex == routingControl.getWaypoints().length - 1) {
     $("#end").val(e.waypoint.name);
-  }else{
-    $("#intermediate"+e.waypointIndex).val(e.waypoint.name);
+  } else {
+    $("#intermediate" + e.waypointIndex).val(e.waypoint.name);
     // console.log($("#intermediate"+e.waypointIndex));
   }
-}
-);
+});
 function closeMap(e) {
   map.zoomOut();
 }
