@@ -45,152 +45,14 @@ let map = L.map("map", {
     },
   ],
 });
-// function myHandler(geojson) {
-//   console.debug(geojson);
-// }
 
-let photonControlOptions = {
-  url: "https://photon.komoot.de/api/",
-  placeholder: "Select a city",
-  formatResult: function (feature, el) {
-    var title = L.DomUtil.create("strong", "", el),
-      detailsContainer = L.DomUtil.create("small", "", el),
-      details = [],
-      type = this.formatType(feature);
-    if (feature.properties.name) {
-      title.innerHTML = feature.properties.name;
-    } else if (feature.properties.housenumber) {
-      title.innerHTML = feature.properties.housenumber;
-      if (feature.properties.street) {
-        title.innerHTML += " " + feature.properties.street;
-      }
-    }
-    // if (type) details.push(type);
-    if (
-      feature.properties.city &&
-      feature.properties.city !== feature.properties.name
-    ) {
-      details.push(feature.properties.city);
-    }
-    if (feature.properties.country) details.push(feature.properties.country);
-    // detailsContainer.innerHTML = details.join(', ');
-    title.innerHTML += ", " + details.join(", ");
-  },
-  onSelected: function (feature) {
-    // map.spin(true);
-    // let $city = $citySelect.val();
-    let $city = feature.properties.name;
-    this.input.value = $city;
-
-    // //get selected latlng
-    // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
-    // let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
-    let $city_lat = feature.geometry.coordinates[1];
-    let $city_lng = feature.geometry.coordinates[0];
-
-    if (marker != undefined) {
-      map.removeLayer(marker);
-    }
-    marker = L.marker([$city_lat, $city_lng]);
-    // marker.addTo(map);
-    centerLeafletMapOnMarker(map, marker);
-    map.setZoom(15);
-
-    // load nearby citys
-    let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
-    let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
-
-    $nearbyPlaceSelect.empty();
-    $nearbyPlaceSelect.append(
-      `<option value="">Select a nearby place</option>`
-    );
-    $.ajax({
-      url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
-      beforeSend: function () {
-        console.log("Loading nearby cities...");
-        map.spin(true);
-      },
-      success: function (data) {
-        console.log("Nearby cities loaded");
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $nearbyPlaceSelect.append(
-            `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      },
-      error: function (error) {
-        alert("Error loading nearby cities");
-        map.spin(false);
-      },
-    });
-
-    // load suburbs
-    let $suburbSelect = $("#suburbSelect");
-    let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius_suburb},${$city_lat},${$city_lng}););out;`;
-
-    let url = $overpassUrl + encodeURIComponent(suburbQuery);
-
-    $suburbSelect.empty();
-    $suburbSelect.append(`<option value="">Select a suburb</option>`);
-    $.ajax({
-      url: url,
-      success: function (data) {
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $suburbSelect.append(
-            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      },
-    }).fail(function (error) {
-      alert("Error loading suburbs");
-      map.spin(false);
-    });
-
-    // load streets
-    let $streetSelect = $("#streetSelect");
-    let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
-
-    url = $overpassUrl + encodeURIComponent(streetQuery);
-
-    $streetSelect.empty();
-    $streetSelect.append(`<option value="">Select a Street</option>`);
-    $.get(url)
-      .done(function (data) {
-        // console.log(data);
-        data = data.split("\n");
-        data.forEach(function (item) {
-          item = item.split("@");
-          $streetSelect.append(
-            `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-          );
-        });
-        map.spin(false);
-      })
-      .fail(function (error) {
-        alert("Error loading suburbs");
-        map.spin(false);
-      });
-  },
-};
-
-// var searchControl = L.control.photon(photonControlOptions);
-// searchControl.addTo(map);
-// document.getElementById("citySelect").appendChild(searchControl.getContainer());
 osm = new L.Control.Geocoder.Nominatim({
   geocodingQueryParams: { limit: 1 },
 });
 geocoder = L.Control.geocoder({
   collapsed: false,
   suggestMinLength: 3,
-  errorMessage: "",
+  errorMessage: "error",
   geocoder: L.Control.Geocoder.photon({
     geocodingQueryParams: {
       osm_tag: ["place:city", "place:town", "place:village"],
@@ -247,7 +109,9 @@ geocoder.on("markgeocode", function (e) {
   feature = e.geocode;
   let $city = feature.properties.name;
   // this.input.value = $city;
-  this._form.innerText = $city;
+  // debugger;
+  this._form.children[0].innerText = $city;
+  // this._form.innerText = $city;
 
   // //get selected latlng
   // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
@@ -494,10 +358,6 @@ routingControl = L.Routing.control({
     return geocoder_class;
   },
 }).addTo(map);
-var start_pt;
-var end_pt;
-var start_marker = null;
-var end_marker = null;
 
 function editFeature(feature, layer) {
   console.log(JSON.stringify(feature.properties));
@@ -552,14 +412,7 @@ var yellowIcon = new L.Icon({
 });
 
 function startMap(e) {
-  // if (start_marker != null) {
-  //   map.removeLayer(start_marker);
-  // }
-  // start_marker = new L.Marker(e.latlng,{icon: greenIcon});
-  // start_marker.addTo(map);
-  start_pt = e.latlng;
   routingControl.spliceWaypoints(0, 1, e.latlng);
-  // $("#start").val(routingControl.getPlan().getWaypoints()[0].name);
 }
 // var routingControl = null;
 var removeRoutingControl = function () {
@@ -569,11 +422,6 @@ var removeRoutingControl = function () {
   }
 };
 function endMap(e) {
-  // if(end_marker != null){
-  //   map.removeLayer(end_marker);
-  // }
-  // end_marker = new L.Marker(e.latlng,{icon: redIcon});
-  // end_marker.addTo(map);
   routingControl.spliceWaypoints(
     routingControl.getWaypoints().length - 1,
     1,
@@ -609,19 +457,18 @@ function optionalMap(e) {
     console.log(e);
     optionalMarker.name = e[0].name;
     $("#optional").empty();
-  for (var i = 0; i < optionalMarkerGroup.getLayers().length; i++) {
-    $li = $("<li>");
-    $input = $("<input>");
-    $input.attr("id", "optional" + i);
-    $input.attr("type", "text");
-    $input.attr("value", optionalMarkerGroup.getLayers()[i].name);
-    $input.attr("class", "optional");
-    $input.attr("onchange", "updateOptional(" + i + ")");
-    $li.append($input);
-    $("#optional").append($li);
-  }
+    for (var i = 0; i < optionalMarkerGroup.getLayers().length; i++) {
+      $li = $("<li>");
+      $input = $("<input>");
+      $input.attr("id", "optional" + i);
+      $input.attr("type", "text");
+      $input.attr("value", optionalMarkerGroup.getLayers()[i].name);
+      $input.attr("class", "optional");
+      $input.attr("onchange", "updateOptional(" + i + ")");
+      $li.append($input);
+      $("#optional").append($li);
+    }
   });
-  
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
@@ -637,26 +484,6 @@ routingControl.getPlan().on("waypointgeocoded", function (e) {
 function closeMap(e) {
   map.zoomOut();
 }
-
-//   var style1 = [
-//     new ol.style.Style({
-//         image: new ol.style.Icon({
-//             scale: .07,
-//             src: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Green_Dot.svg",
-//           }),
-//         zIndex: 5,
-//     }),
-// ];
-
-// var style2 = [
-//     new ol.style.Style({
-//         image: new ol.style.Icon({
-//             scale: .05,
-//             src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Red_Dot.svg/180px-Red_Dot.svg.png",
-//           }),
-//         zIndex: 5,
-//     }),
-// ];
 
 var marker = {};
 
