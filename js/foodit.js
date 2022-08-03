@@ -377,7 +377,12 @@ $nearbyPlaceSelect.change(function () {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
+
+  // add coordinates to button
+  $("#routingAddButton").attr("data-lat", $city_lat);
+  $("#routingAddButton").attr("data-lng", $city_lng);
 });
+
 let $suburbSelect = $("#suburbSelect");
 $suburbSelect.change(function () {
   let $city = geocoder._form.innerText;
@@ -390,15 +395,19 @@ $suburbSelect.change(function () {
   let $suburb_lat = parseFloat($(this).find(":selected").attr("data-lat"));
   let $suburb_lng = parseFloat($(this).find(":selected").attr("data-lng"));
 
-  start_marker = L.marker([$suburb_lat, $suburb_lng]);
-  start_marker.addTo(map);
-  start_pt = start_marker.getLatLng.latLng;
-  centerLeafletMapOnMarker(map, start_marker);
+  marker = L.marker([$suburb_lat, $suburb_lng]);
+  marker.addTo(map);
+  centerLeafletMapOnMarker(map, marker);
+  map.setZoom(16);
+
+  // add coordinates to button
+  $("#routingAddButton").attr("data-lat", $suburb_lat);
+  $("#routingAddButton").attr("data-lng", $suburb_lng);
 
   let $streetSelect = $("#streetSelect");
   let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${
     $overpass_radius / 2
-  },${$city_lat},${$city_lng}););out center;`;
+  },${$suburb_lat},${$suburb_lng}););out center;`;
 
   $streetSelect.empty();
   $streetSelect.append(`<option value="">Select a street</option>`);
@@ -422,13 +431,17 @@ $streetSelect.change(function () {
     map.removeLayer(marker);
   }
   //get selected latlng
-  let $suburb_lat = parseFloat($(this).find(":selected").attr("data-lat"));
-  let $suburb_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+  let $street_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+  let $street_lng = parseFloat($(this).find(":selected").attr("data-lng"));
 
-  marker = L.marker([$suburb_lat, $suburb_lng]);
+  let marker = L.marker([$street_lat, $street_lng]);
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(17);
+
+  // add coordinates to button
+  $("#routingAddButton").attr("data-lat", $street_lat);
+  $("#routingAddButton").attr("data-lng", $street_lng);
 });
 
 // routing

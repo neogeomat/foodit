@@ -160,7 +160,7 @@
       }else if(this.parentElement.parentElement.children[0].placeholder == "End"){
         routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
       }else if(this.parentElement.parentElement.children[0].placeholder == "Intermediate"){
-        routingControl.spliceWaypoints(routingControl.getWaypoints().length - 2, 0, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
+        routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 0, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
       }else if(this.parentElement.parentElement.children[0].placeholder == "Optional"){
         optionalMap({latlng:{lat:this.getAttribute('data-lat'), lng:this.getAttribute('data-lng')}});
       }
