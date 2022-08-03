@@ -82,7 +82,7 @@
                 <input
                   type="text"
                   id="intermediate1"
-                  placeholder="intermediate"
+                  placeholder="Intermediate"
                   class="waypointAddresses"
                 />
               </li>
@@ -97,7 +97,7 @@
                 <input
                   type="text"
                   id="optional1"
-                  placeholder="optional"
+                  placeholder="Optional"
                   class="waypointAddresses"
                 />
               </li>
@@ -129,7 +129,7 @@
               <option value="">Select a Street</option>
             </select>
 
-            <button id="routingAdd">Add to routing</button>
+            <button id="routingAddButton">Add to routing</button>
           </div>
         </div>
         <div class="col-md-9"></div>
@@ -152,6 +152,19 @@
       var $input = $(element.target);
       $input.select();
       element.target.after($selectMenu[0]);
+    });
+
+    $("#routingAddButton").click(function () {
+      if(this.parentElement.parentElement.children[0].placeholder == "Start"){
+        routingControl.spliceWaypoints(0, 1, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
+      }else if(this.parentElement.parentElement.children[0].placeholder == "End"){
+        routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
+      }else if(this.parentElement.parentElement.children[0].placeholder == "Intermediate"){
+        routingControl.spliceWaypoints(routingControl.getWaypoints().length - 2, 0, L.latLng(this.getAttribute('data-lat'), this.getAttribute('data-lng')));
+      }else if(this.parentElement.parentElement.children[0].placeholder == "Optional"){
+        optionalMap({latlng:{lat:this.getAttribute('data-lat'), lng:this.getAttribute('data-lng')}});
+      }
+
     });
   </script>
 </html>

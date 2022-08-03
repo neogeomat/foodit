@@ -345,6 +345,10 @@ geocoder.on("markgeocode", function (e) {
       alert("Error loading suburbs");
       map.spin(false);
     });
+
+  // add coordinates to button
+  $("#routingAddButton").attr("data-lat", $city_lat);
+  $("#routingAddButton").attr("data-lng", $city_lng);
 });
 
 document.getElementById("citySelect").appendChild(geocoder.getContainer());
@@ -360,131 +364,6 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 // let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
 let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
-$countrySelect.change(function () {
-  map.spin(true);
-  let $country = $countrySelect.val();
-  let $citiesSelect = $("#citySelect");
-  switch ($country) {
-    case "Germany":
-      $citiesSelect.empty();
-      // debugger;
-      Object.keys($citiesList.Germany)
-        .sort()
-        .forEach(function (city) {
-          $citiesSelect.append(
-            `<option value = '${city}' data-lat="${$citiesList["Germany"][city]["lat"]}" data-lng="${$citiesList["Germany"][city]["lng"]}">${city}</option>`
-          );
-        });
-      break;
-    case "France":
-      $citiesSelect.empty();
-      $citiesList["France"].forEach(function (city) {
-        $citiesSelect.append(
-          `<option value='${city}' data-lat="${$citiesList["Germany"][city]["lat"]}" data-lng="${$citiesList["Germany"][city]["lng"]}">${city} onclick="alert();"</option>`
-        );
-      });
-      break;
-  }
-  map.spin(false);
-});
-
-// let $citySelect = $("#citySelect");
-// $citySelect.change(function () {
-//   map.spin(true);
-//   let $city = $citySelect.val();
-
-//   //get selected latlng
-//   let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
-//   let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
-
-//   if (marker != undefined) {
-//     map.removeLayer(marker);
-//   }
-//   marker = L.marker([$city_lat, $city_lng]);
-//   marker.addTo(map);
-//   centerLeafletMapOnMarker(map, marker);
-//   map.setZoom(15);
-
-//   // load nearby citys
-//   let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
-//   let nearbyPlaceQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place~"city|town|village"](around:${$overpass_radius},${$city_lat},${$city_lng}););out;`;
-
-//   $nearbyPlaceSelect.empty();
-//   $nearbyPlaceSelect.append(`<option value="">Select a nearby place</option>`);
-//   $.ajax({
-//     url: $overpassUrl + encodeURIComponent(nearbyPlaceQuery),
-//     beforeSend: function () {
-//       console.log("Loading nearby cities...");
-//     },
-//     success: function (data) {
-//       console.log("Nearby cities loaded");
-//       console.log(data);
-//       data = data.split("\n");
-//       data.forEach(function (item) {
-//         item = item.split("@");
-//         $nearbyPlaceSelect.append(
-//           `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
-//         );
-//       });
-//       map.spin(false);
-//     },
-//     error: function (error) {
-//       alert("Error loading nearby cities");
-//       map.spin(false);
-//     },
-//   });
-
-//   // load suburbs
-//   let $suburbSelect = $("#suburbSelect");
-//   let suburbQuery = `[out:csv(name,::lat,::lon;false;'@')];(node[place="suburb"](around:${$overpass_radius},${$city_lat},${$city_lng}););out;`;
-
-//   let url = $overpassUrl + encodeURIComponent(suburbQuery);
-
-//   $suburbSelect.empty();
-//   $suburbSelect.append(`<option value="">Select a suburb</option>`);
-//   $.ajax({
-//     url: url,
-//     success: function (data) {
-//       console.log(data);
-//       data = data.split("\n");
-//       data.forEach(function (item) {
-//         item = item.split("@");
-//         $suburbSelect.append(
-//           `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-//         );
-//       });
-//       map.spin(false);
-//     },
-//   }).fail(function (error) {
-//     alert("Error loading suburbs");
-//     map.spin(false);
-//   });
-
-//   // load streets
-//   let $streetSelect = $("#streetSelect");
-//   let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
-
-//   url = $overpassUrl + encodeURIComponent(streetQuery);
-
-//   $streetSelect.empty();
-//   $streetSelect.append(`<option value="">Select a Street</option>`);
-//   $.get(url)
-//     .done(function (data) {
-//       console.log(data);
-//       data = data.split("\n");
-//       data.forEach(function (item) {
-//         item = item.split("@");
-//         $streetSelect.append(
-//           `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
-//         );
-//       });
-//       map.spin(false);
-//     })
-//     .fail(function (error) {
-//       alert("Error loading suburbs");
-//       map.spin(false);
-//     });
-// });
 
 let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
 $nearbyPlaceSelect.change(function () {
