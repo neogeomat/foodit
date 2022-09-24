@@ -309,6 +309,12 @@ $streetSelect.change(function () {
 });
 
 // routing
+window.LRM = {
+  apiKey: '6020c86335mshe95b784272ac769p101741jsndd55ce126215',
+tileLayerUrl: 'https://retina-tiles.p.rapidapi.com/local/osm{r}/v1/{z}/{x}/{y}.png?rapidapi-key=6020c86335mshe95b784272ac769p101741jsndd55ce126215',
+osmServiceUrl: 'https://fast-routing.p.rapidapi.com/route/v1',
+geocodeServiceUrl: 'https://forward-reverse-geocoding.p.rapidapi.com/v1/'
+};
 var optionalMarkerGroup = L.layerGroup().addTo(map);
 routingControl = L.Routing.control({
   geocodersClassName: "routing_geocoders",
@@ -317,6 +323,16 @@ routingControl = L.Routing.control({
   geocoder: geocoder.options.geocoder,
   reverseWaypoints: true,
   //autoRoute: true, // possibility to take autoRoute
+  router: L.routing.osrmv1({
+    requestParameters: {'rapidapi-key':LRM.apiKey},
+    hints: false,
+    // language: lang,
+    serviceUrl: LRM.osmServiceUrl
+  }),
+  // waypoints: [
+  //   L.latLng(57.74, 11.94),
+  //   L.latLng(57.6792, 11.949)
+  // ],
   createMarker: function (i, m, n) {
     var marker_icon = null;
     if (i == 0) {
@@ -469,6 +485,7 @@ function optionalMap(e) {
       $("#optional").append($li);
     }
   });
+  routingControl.fire('routesfound',{ routes: routingControl._routes});
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
@@ -492,3 +509,62 @@ function centerLeafletMapOnMarker(map, marker) {
   var markerBounds = L.latLngBounds(latLngs);
   map.fitBounds(markerBounds);
 }
+
+routingControl.on('routesfound', route => {
+  // console.log(route);
+  // map.spin(false);
+  // map._spinner.stop();
+  // setTimeout(function() { map.spin(false); }, 1000);
+  var itineraryDiv = document.getElementById('routeExport');
+  var g = L.geoJSON();
+  g.addLayer(L.polyline(route.routes[0].coordinates));
+  itineraryDiv.innerHTML = `<div>${JSON.stringify(g.toGeoJSON())}</div>`;
+
+  var waypointsDiv = document.getElementById('waypointsExport');
+  var p = L.geoJSON();
+  for(let o in route.routes[0].inputWaypoints){
+    console.log(o);
+    let marker = L.marker(route.routes[0].inputWaypoints[o].latLng);
+    marker.feature = {};
+    marker.feature.type = 'Feature';
+    marker.feature.properties = {};
+    marker.feature.properties.type = 'routePoint';
+
+    p.addLayer(marker);
+  }
+  optionalMarkerGroup.eachLayer(marker=>{
+    console.log(marker);
+    marker.feature = {};
+    marker.feature.type = 'Feature';    
+    marker.feature.properties = {};
+    marker.feature.properties.type = 'optionalPoint';
+
+    p.addLayer(marker);
+  });
+  waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
+
+  var combinedExportDiv = document.getElementById('combinedExport');
+  var e = L.geoJSON();
+  for(let o in route.routes[0].inputWaypoints){
+    console.log(o);
+    let marker = L.marker(route.routes[0].inputWaypoints[o].latLng);
+    marker.feature = {};
+    marker.feature.type = 'Feature';
+    marker.feature.properties = {};
+    marker.feature.properties.type = 'routePoint';
+
+    e.addLayer(marker);
+  }
+  optionalMarkerGroup.eachLayer(marker=>{
+    console.log(marker);
+    marker.feature = {};
+    marker.feature.type = 'Feature';    
+    marker.feature.properties = {};
+    marker.feature.properties.type = 'optionalPoint';
+
+    e.addLayer(marker);
+  });
+  e.addLayer(L.polyline(route.routes[0].coordinates));
+  combinedExportDiv.innerHTML = `<div>${JSON.stringify(e.toGeoJSON())}</div>`;
+  // debugger;
+});
