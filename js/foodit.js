@@ -335,6 +335,51 @@ tileLayerUrl: 'https://retina-tiles.p.rapidapi.com/local/osm{r}/v1/{z}/{x}/{y}.p
 osmServiceUrl: 'https://fast-routing.p.rapidapi.com/route/v1',
 geocodeServiceUrl: 'https://forward-reverse-geocoding.p.rapidapi.com/v1/'
 };
+
+var redIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+var greenIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+var orangeIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+var yellowIcon = new L.Icon({
+  iconUrl:
+    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 var optionalMarkerGroup = L.layerGroup().addTo(map);
 routingControl = L.Routing.control({
   geocodersClassName: "routing_geocoders",
@@ -406,50 +451,6 @@ function editFeature(feature, layer) {
 function showAssetInfo(e) {
   AssetMouseClick(e.target.feature.properties.objectid, e.latlng);
 }
-
-var redIcon = new L.Icon({
-  iconUrl:
-    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-var greenIcon = new L.Icon({
-  iconUrl:
-    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-var orangeIcon = new L.Icon({
-  iconUrl:
-    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-var yellowIcon = new L.Icon({
-  iconUrl:
-    "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
 
 function startMap(e) {
   routingControl.spliceWaypoints(0, 1, e.latlng);
@@ -542,12 +543,12 @@ routingControl.on('routesfound', route => {
   var itineraryDiv = document.getElementById('routeExport');
   var g = L.geoJSON();
   g.addLayer(L.polyline(route.routes[0].coordinates));
-  itineraryDiv.innerHTML = `<div>${JSON.stringify(g.toGeoJSON())}</div>`;
+  // itineraryDiv.innerHTML = `<div>${JSON.stringify(g.toGeoJSON())}</div>`;
 
   var waypointsDiv = document.getElementById('waypointsExport');
   var p = L.geoJSON();
   for(let o in route.routes[0].inputWaypoints){
-    console.log(o);
+    // console.log(o);
     let marker = L.marker(route.routes[0].inputWaypoints[o].latLng);
     marker.feature = {};
     marker.feature.type = 'Feature';
@@ -565,12 +566,13 @@ routingControl.on('routesfound', route => {
 
     p.addLayer(marker);
   });
-  waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
+  // waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
+  waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(route.routes[0].inputWaypoints)},"optionalpoints":${JSON.stringify(optionalMarkerGroup.getLayers())}}`;
 
   var combinedExportDiv = document.getElementById('combinedExport');
   var e = L.geoJSON();
   for(let o in route.routes[0].inputWaypoints){
-    console.log(o);
+    // console.log(o);
     let marker = L.marker(route.routes[0].inputWaypoints[o].latLng);
     marker.feature = {};
     marker.feature.type = 'Feature';
@@ -589,6 +591,6 @@ routingControl.on('routesfound', route => {
     e.addLayer(marker);
   });
   e.addLayer(L.polyline(route.routes[0].coordinates));
-  combinedExportDiv.innerHTML = `<div>${JSON.stringify(e.toGeoJSON())}</div>`;
+  // combinedExportDiv.innerHTML = `<div>${JSON.stringify(e.toGeoJSON())}</div>`;
   // debugger;
 });

@@ -112,6 +112,7 @@
       <div class="row">
         <div class="col-md-12">
           <div id="map" class="col-md-12" style="height: 500px"></div>
+          
           <div id="selectMenu" class="hidden">
             <select id="countrySelect">
               <option value="">Select a country</option>
@@ -147,11 +148,18 @@
       Combined Export
       <div id="combinedExport"></div>
     </div>
+    <div class="row">
+      <div class="col-md-3">
+        <input type="button" id="loadGeojson" value="Click to load above json in map below"></input>
+      </div>
+      <div id="map2" class="col-md-12" style="height: 500px"></div>
+    </div>
   </body>
   <script src="js/spin.min.js"></script>
   <script src="js/leaflet.spin.js"></script>
   <script src="js/leaflet.photon.js"></script>
   <script src="js/foodit.js"></script>
+  <script src="retrieveMap.js"></script>
   <script>
     var $startInput = $("#start");
     var $endInput = $("#end");
