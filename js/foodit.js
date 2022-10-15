@@ -85,13 +85,11 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
         var c = f.geometry.coordinates;
         var center = L.latLng(c[1], c[0]);
         var extent = f.properties.extent;
-        var bbox = extent
-          ? L.latLngBounds([extent[1], extent[0]], [extent[3], extent[2]])
+        var bbox = extent ? L.latLngBounds([extent[1], extent[0]], [extent[3], extent[2]])
           : L.latLngBounds(center, center);
         results.push({
           name: this._decodeFeatureName(f),
-          html: this.options.htmlTemplate
-            ? this.options.htmlTemplate(f)
+          html: this.options.htmlTemplate ? this.options.htmlTemplate(f)
             : undefined,
           center: center,
           bbox: bbox,
@@ -125,6 +123,10 @@ geocoder.on("markgeocode", function (e) {
     map.removeLayer(marker);
   }
   marker = L.marker([$city_lat, $city_lng]);
+  marker.feature = {};
+  marker.feature.type = 'Feature';
+  marker.feature.properties = {};
+  marker.feature.properties['city'] = $city;
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
@@ -238,6 +240,10 @@ $nearbyPlaceSelect.change(function () {
     map.removeLayer(marker);
   }
   marker = L.marker([$city_lat, $city_lng]);
+  marker.feature = {};
+  marker.feature.type = 'Feature';
+  marker.feature.properties = {};
+  marker.feature.properties['city'] = $city;
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
@@ -260,6 +266,11 @@ $suburbSelect.change(function () {
   let $suburb_lng = parseFloat($(this).find(":selected").attr("data-lng"));
 
   marker = L.marker([$suburb_lat, $suburb_lng]);
+  marker.feature = {};
+  marker.feature.type = 'Feature';
+  marker.feature.properties = {};
+  marker.feature.properties['city'] = $city;
+  marker.feature.properties['suburb'] = $suburb;
   marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(16);
@@ -291,6 +302,9 @@ $suburbSelect.change(function () {
 
 let $streetSelect = $("#streetSelect");
 $streetSelect.change(function () {
+  let $city = geocoder._form.innerText;
+  let $suburb = $suburbSelect.val();
+  let $street = $streetSelect.val();
   if (marker != undefined) {
     map.removeLayer(marker);
   }
@@ -298,7 +312,13 @@ $streetSelect.change(function () {
   let $street_lat = parseFloat($(this).find(":selected").attr("data-lat"));
   let $street_lng = parseFloat($(this).find(":selected").attr("data-lng"));
 
-  let marker = L.marker([$street_lat, $street_lng]);
+  marker = L.marker([$street_lat, $street_lng]);
+  marker.feature = {};
+  marker.feature.type = 'Feature';
+  marker.feature.properties = {};
+  marker.feature.properties['city'] = $city;
+  marker.feature.properties['suburb'] = $suburb;
+  marker.feature.properties['street'] = $street;
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(17);
@@ -374,7 +394,11 @@ routingControl = L.Routing.control({
     return geocoder_class;
   },
 }).addTo(map);
+$(".start_geocoder").before($('<img src = "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png">'));
+$(".end_geocoder").before($('<img src = "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png">'))
 
+
+// routingControl.getContainer().style.display = 'none';
 function editFeature(feature, layer) {
   console.log(JSON.stringify(feature.properties));
 }
