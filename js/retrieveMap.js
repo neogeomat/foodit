@@ -22,5 +22,6 @@ $('#loadGeojson').click(()=>{
     let $optionalPoints = $waypointsGeojson['optionalpoints'];
 
     routingControl2.setWaypoints($routePoints);
+    routingControl2.route();
 });
 
