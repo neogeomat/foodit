@@ -75,13 +75,16 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
   // debugger;
   var selectedCountry = $("#countrySelect").val();
   if (!selectedCountry) {
-    alert("Please select a country first");
-  }
+    // alert("Please select a country first");
+    geocoder.options.geocoder.__proto__.options = {};
+    geocoder.options.geocoder.__proto__.options.nameProperties = ['name', 'street', 'suburb', 'hamlet', 'town', 'city', 'state', 'country'];
+    results = geocoder.options.geocoder.__proto__._decodeFeatures(data);
+  }else
   if (data && data.features) {
     for (var i = 0; i < data.features.length; i++) {
       var f = data.features[i];
 
-      if (f.properties.countrycode == selectedCountry) {
+      if (selectedCountry && f.properties.countrycode == selectedCountry) {
         var c = f.geometry.coordinates;
         var center = L.latLng(c[1], c[0]);
         var extent = f.properties.extent;
@@ -89,8 +92,7 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
           : L.latLngBounds(center, center);
         results.push({
           name: this._decodeFeatureName(f),
-          html: this.options.htmlTemplate ? this.options.htmlTemplate(f)
-            : undefined,
+          html: this.options.htmlTemplate ? this.options.htmlTemplate(f): undefined,
           center: center,
           bbox: bbox,
           properties: f.properties,
