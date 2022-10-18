@@ -193,11 +193,14 @@
         this.parentElement.parentElement.children[0].placeholder ==
         "Intermediate"
       ) {
-        routingControl.spliceWaypoints(
-          routingControl.getWaypoints().length - 1,
-          0,
-          L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
-        );
+        // routingControl.spliceWaypoints(
+        //   routingControl.getWaypoints().length - 1,
+        //   0,
+        //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
+        // );
+        intermediateMap({
+          'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]
+        });
       } else if (
         this.parentElement.parentElement.children[0].placeholder == "Optional"
       ) {

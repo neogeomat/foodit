@@ -477,6 +477,7 @@ function intermediateMap(e) {
     e.latlng
   );
   $("#intermediate").empty();
+  // populate intermediate list
   for (var i = 1; i < routingControl.getWaypoints().length - 1; i++) {
     $li = $("<li>");
     $input = $("<input>");
@@ -488,6 +489,11 @@ function intermediateMap(e) {
     $li.append($input);
     $("#intermediate").append($li);
   }
+  // option to add more
+  $li = $("<li>");
+  $input = $("<input>");
+  $li.append($input);
+  $("#intermediate").append($li);
 }
 
 function optionalMap(e) {
@@ -509,6 +515,11 @@ function optionalMap(e) {
       $li.append($input);
       $("#optional").append($li);
     }
+    // option to add more
+    $li = $("<li>");
+    $input = $("<input>");
+    $li.append($input);
+    $("#intermediate").append($li);
   });
   routingControl.fire('routesfound',{ routes: routingControl._routes});
 }
