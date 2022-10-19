@@ -46,6 +46,9 @@
       /* .leaflet-routing-geocoders{
     display: none;
   } */
+  .hidden{
+    display: none;
+  }
     </style>
   </head>
   <body>
@@ -61,6 +64,7 @@
               placeholder="Start"
               class="waypointAddresses"
             />
+            <button id="removeStartBtn" class="hidden">Remove</button>
           </h4>
         </div>
       </div>
@@ -95,25 +99,26 @@
             </ol>
           </h4>
         </div>
-        <div class="row">
-          <div class="col-md-12">
-            <h4>
-              End
-              <input
-                type="text"
-                id="end"
-                placeholder="End"
-                class="waypointAddresses"
-              />
-            </h4>
-          </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h4>
+            End
+            <input
+              type="text"
+              id="end"
+              placeholder="End"
+              class="waypointAddresses"
+            />
+            <button id="removeEndBtn" class="hidden">Remove</button>
+          </h4>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <div id="map" class="col-md-12" style="height: 500px"></div>
           
-          <div id="selectMenu" class="hidden">
+          <div id="selectMenu" class="">
             <select id="countrySelect">
               <option value="">Select a country</option>
               <option value="FR">France</option>
@@ -176,19 +181,21 @@
 
     $("#routingAddButton").click(function () {
       if (this.parentElement.parentElement.children[0].placeholder == "Start") {
-        routingControl.spliceWaypoints(
-          0,
-          1,
-          L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
-        );
+        // routingControl.spliceWaypoints(
+        //   0,
+        //   1,
+        //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
+        // );
+        startMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
       } else if (
         this.parentElement.parentElement.children[0].placeholder == "End"
       ) {
-        routingControl.spliceWaypoints(
-          routingControl.getWaypoints().length - 1,
-          1,
-          L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
-        );
+        // routingControl.spliceWaypoints(
+        //   routingControl.getWaypoints().length - 1,
+        //   1,
+        //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
+        // );
+        endMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
       } else if (
         this.parentElement.parentElement.children[0].placeholder ==
         "Intermediate"

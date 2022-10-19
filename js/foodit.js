@@ -456,6 +456,17 @@ function showAssetInfo(e) {
 
 function startMap(e) {
   routingControl.spliceWaypoints(0, 1, e.latlng);
+  let $removeStartButton = $('#removeStartBtn');
+  $removeStartButton.on('click',removeStart);
+  $removeStartButton.show();
+}
+
+function removeStart() {
+  // alert();
+  routingControl.spliceWaypoints(0, 1,null);
+  $('#start').val('');
+  let $removeStartButton = $('#removeStartBtn');
+  $removeStartButton.hide();
 }
 // var routingControl = null;
 var removeRoutingControl = function () {
@@ -470,6 +481,17 @@ function endMap(e) {
     1,
     e.latlng
   );
+  let $removeEndButton = $('#removeEndBtn');
+  $removeEndButton.on('click',removeEnd);
+  $removeEndButton.show();
+}
+
+function removeEnd() {
+  // alert();
+  routingControl.spliceWaypoints(routingControl.getWaypoints().length - 1, 1,null);
+  $('#end').val('');
+  let $removeEndButton = $('#removeEndBtn');
+  $removeEndButton.hide();
 }
 
 function intermediateMap(e) {
