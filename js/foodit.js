@@ -503,14 +503,21 @@ function intermediateMap(e) {
   $("#intermediate").empty();
   // populate intermediate list
   for (var i = 1; i < routingControl.getWaypoints().length - 1; i++) {
-    $li = $("<li>");
-    $input = $("<input>");
+    let $li = $("<li>");
+    let $input = $("<input>");
     $input.attr("id", "intermediate" + i);
     $input.attr("type", "text");
     $input.attr("value", routingControl.getWaypoints()[i].name);
     $input.attr("class", "intermediate");
     $input.attr("onchange", "updateIntermediate(" + i + ")");
     $li.append($input);
+
+    let $removeIntermediateBtn = $('<button>');
+    $removeIntermediateBtn.attr("id","removeintermediate" + i);
+    $removeIntermediateBtn.attr("class", "removeintermediate");
+    $removeIntermediateBtn.text('Remove');
+    $removeIntermediateBtn.attr("onclick","removeintermediate("+i+")");
+    $li.append($removeIntermediateBtn);
     $("#intermediate").append($li);
   }
   // option to add more
@@ -518,6 +525,27 @@ function intermediateMap(e) {
   $input = $("<input>");
   $li.append($input);
   $("#intermediate").append($li);
+}
+
+function removeintermediate(index) {
+  // alert(index);
+  routingControl.spliceWaypoints(index, 1);
+  $('#intermediate' + index).val('');
+  $('#intermediate' + index).parent().remove();
+
+  // fukang list nhugu dekeu
+  ll = $('#intermediate>li');
+  ll.each(l => {
+    const i = l+1;
+    ll[l].children[0].setAttribute('id','intermediate' + i);
+    ll[l].children[0].setAttribute('onchange','updateIntermediate('+i+')');
+    ll[l].children[1].setAttribute('id','removeintermediate' + i);
+    ll[l].children[1].setAttribute('onclick','removeintermediate('+i+')');
+    // console.log(ll[l]);
+  });
+
+  // let $removeEndButton = $('#removeEndBtn');
+  // $removeEndButton.hide();
 }
 
 function optionalMap(e) {
