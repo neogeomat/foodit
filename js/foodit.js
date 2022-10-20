@@ -555,25 +555,41 @@ function optionalMap(e) {
   osm.reverse(optionalMarker.getLatLng(), 18, (e) => {
     console.log(e);
     optionalMarker.name = e[0].name;
-    $("#optional").empty();
-    for (var i = 0; i < optionalMarkerGroup.getLayers().length; i++) {
-      $li = $("<li>");
-      $input = $("<input>");
-      $input.attr("id", "optional" + i);
-      $input.attr("type", "text");
-      $input.attr("value", optionalMarkerGroup.getLayers()[i].name);
-      $input.attr("class", "optional");
-      $input.attr("onchange", "updateOptional(" + i + ")");
-      $li.append($input);
-      $("#optional").append($li);
-    }
-    // option to add more
-    $li = $("<li>");
-    $input = $("<input>");
-    $li.append($input);
-    $("#intermediate").append($li);
+    _optionallistdraw(optionalMarkerGroup);
   });
   routingControl.fire('routesfound',{ routes: routingControl._routes});
+}
+
+function removeOptional(index){
+  optionalMarkerGroup.removeLayer(optionalMarkerGroup.getLayers()[index]);
+  _optionallistdraw(optionalMarkerGroup);
+}
+
+function _optionallistdraw(optionalMarkerGroup){
+  $("#optional").empty();
+  for (var i = 0; i < optionalMarkerGroup.getLayers().length; i++) {
+    let $li = $("<li>");
+    let $input = $("<input>");
+    $input.attr("id", "optional" + i);
+    $input.attr("type", "text");
+    $input.attr("value", optionalMarkerGroup.getLayers()[i].name);
+    $input.attr("class", "optional");
+    $input.attr("onchange", "updateOptional(" + i + ")");
+    $li.append($input);
+
+    let $removeOptionalBtn = $('<button>');
+    $removeOptionalBtn.attr("id","removeOptional" + i);
+    $removeOptionalBtn.attr("class", "removeOptional");
+    $removeOptionalBtn.text('Remove');
+    $removeOptionalBtn.attr("onclick","removeOptional("+i+")");
+    $li.append($removeOptionalBtn);
+    $("#optional").append($li);
+  }
+  // option to add more
+  $li = $("<li>");
+  $input = $("<input>");
+  $li.append($input);
+  $("#optional").append($li);
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
