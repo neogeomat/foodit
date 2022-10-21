@@ -118,7 +118,22 @@
         <div class="col-md-12">
           <div id="map" class="col-md-12" style="height: 500px"></div>
           
-          <div id="selectMenu" class="">
+          <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+          
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Find Places..</h4>
+                </div>
+                <div class="modal-body" id="routing_modal_body">
+                </div>
+              </div>
+          
+            </div>
+          </div>
+
+          <!-- <div id="selectMenu" class="">
             <select id="countrySelect">
               <option value="">Select a country</option>
               <option value="FR">France</option>
@@ -140,7 +155,8 @@
             </select>
 
             <button id="routingAddButton">Add to routing</button>
-          </div>
+          </div> -->
+
         </div>
         <div class="col-md-9"></div>
       </div>
@@ -174,13 +190,17 @@
     var $selectMenu = $("#selectMenu");
     var $waypointAddressesInput = $(".waypointAddresses");
     $waypointAddressesInput.click(function (element) {
-      var $input = $(element.target);
-      $input.select();
-      element.target.after($selectMenu[0]);
+      // var $input = $(element.target);
+      // $input.select();
+      // element.target.after($selectMenu[0]);
+      var placeholder=$(this).attr("placeholder");
+      $("#routing_modal_body").html('<div id="selectMenu" class="form-group"><input type="hidden" class="placeholder_field" placeholder="'+placeholder+'" /><select id="countrySelect" class="form-control"><option value="">Select a country</option><option value="FR">France</option><option value="DE">Germany</option></select><div id="citySelect" class="form-group mt-3"></div><select id="nearbyPlaceSelect" class="form-control mt-3"><option value="">Select nearby city</option></select><select id="suburbSelect" class="form-control mt-3"><option value="">Select a suburb</option></select><select id="streetSelect" class="form-control mt-3"><option value="">Select a Street</option></select><button id="routingAddButton" class="btn btn-success pull-right mt-3" >Add to Routing</button></div>');
+      $("#myModal").modal("show");
     });
 
     $("#routingAddButton").click(function () {
-      if (this.parentElement.parentElement.children[0].placeholder == "Start") {
+      // if (this.parentElement.parentElement.children[0].placeholder == "Start") {
+      if ($(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "Start") {
         // routingControl.spliceWaypoints(
         //   0,
         //   1,
@@ -188,7 +208,8 @@
         // );
         startMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
       } else if (
-        this.parentElement.parentElement.children[0].placeholder == "End"
+        // this.parentElement.parentElement.children[0].placeholder == "End"
+        $(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "End"
       ) {
         // routingControl.spliceWaypoints(
         //   routingControl.getWaypoints().length - 1,
@@ -197,7 +218,9 @@
         // );
         endMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
       } else if (
-        this.parentElement.parentElement.children[0].placeholder ==
+        // this.parentElement.parentElement.children[0].placeholder ==
+        // "Intermediate"
+        $(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder")==
         "Intermediate"
       ) {
         // routingControl.spliceWaypoints(
@@ -209,7 +232,8 @@
           'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]
         });
       } else if (
-        this.parentElement.parentElement.children[0].placeholder == "Optional"
+        // this.parentElement.parentElement.children[0].placeholder == "Optional"
+        $(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "Optional"
       ) {
         optionalMap({
           latlng: {
