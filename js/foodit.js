@@ -132,6 +132,8 @@ geocoder.on("markgeocode", function (e) {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
+  // debugger;
+  $('#citySelect input').val(feature.name);
 
   // load nearby citys
   let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
@@ -219,7 +221,10 @@ geocoder.on("markgeocode", function (e) {
   $("#routingAddButton").attr("data-lng", $city_lng);
 });
 
-document.getElementById("citySelect").appendChild(geocoder.getContainer());
+$(document).on('show.bs.modal','#myModal', function () {
+  document.getElementById("citySelect").appendChild(geocoder.getContainer());
+});
+
 map.on("click", function (e) {
   map.contextmenu.showAt(e.latlng);
 });
@@ -249,6 +254,7 @@ $nearbyPlaceSelect.change(function () {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
+  $('#citySelect input').val($city);
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $city_lat);
