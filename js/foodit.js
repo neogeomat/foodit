@@ -514,7 +514,7 @@ function intermediateMap(e) {
     $input.attr("id", "intermediate" + i);
     $input.attr("type", "text");
     $input.attr("value", routingControl.getWaypoints()[i].name);
-    $input.attr("class", "intermediate");
+    $input.attr("class", "intermediate waypointAddresses");
     $input.attr("onchange", "updateIntermediate(" + i + ")");
     $li.append($input);
 
