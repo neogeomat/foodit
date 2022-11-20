@@ -451,7 +451,7 @@ $(".start_geocoder").before($('<img src = "https://cdn.rawgit.com/pointhi/leafle
 $(".end_geocoder").before($('<img src = "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png">'))
 
 
-// routingControl.getContainer().style.display = 'none';
+routingControl.getContainer().style.display = 'none';
 function editFeature(feature, layer) {
   console.log(JSON.stringify(feature.properties));
 }

@@ -16,7 +16,7 @@ for (let index = 0; index < users.length; index++) {
 }).addTo(maps[element]);
 
   routingControls[element] = L.Routing.control({
-      
+    fitSelectedRoutes:true
   });
   routingControls[element].addTo(maps[element]);
 }
@@ -46,6 +46,10 @@ $('#loadGeojson').click(()=>{
       const element = users[index];
       routingControls[element].setWaypoints($routePoints);
     routingControls[element].route();
+    routingControls[element].on('routesfound',route=>{
+      console.log(route);
+      route.sourceTarget._map.fitBounds(L.polyline(route.routes[0].coordinates).getBounds());
+    });
     }
     
 });
