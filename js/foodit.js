@@ -135,6 +135,7 @@ geocoder.on("markgeocode", function (e) {
   map.setZoom(15);
   // debugger;
   $('#citySelect input').val(feature.name);
+  this._form.city = feature.name;
 
   // load nearby citys
   let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
@@ -180,6 +181,7 @@ geocoder.on("markgeocode", function (e) {
     url: url,
     success: function (data) {
       // console.log(data);
+      console.log("Suburbs loaded");
       data = data.split("\n");
       data.forEach(function (item) {
         item = item.split("@");
@@ -206,6 +208,7 @@ geocoder.on("markgeocode", function (e) {
   $.get(url)
     .done(function (data) {
       // console.log(data);
+      console.log("Streets loaded");
       data = data.split("\n");
       data.forEach(function (item) {
         item = item.split("@");
@@ -243,9 +246,9 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 // let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
 let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
 
-let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
 $(document).on("change","#nearbyPlaceSelect",function(){
 // $nearbyPlaceSelect.change(function () {
+  let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
   let $city = $nearbyPlaceSelect.val();
   let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
   let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
@@ -260,6 +263,8 @@ $(document).on("change","#nearbyPlaceSelect",function(){
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
+  // debugger;
+  geocoder._form.city = $city;
   $('#citySelect input').val($city);
 
   // add coordinates to button
@@ -270,7 +275,8 @@ $(document).on("change","#nearbyPlaceSelect",function(){
 $(document).on("change","#suburbSelect",function(){
   let $suburbSelect = $("#suburbSelect");
 // $suburbSelect.change(function () {
-  let $city = geocoder._form.innerText;
+  // let $city = $('#citySelect input').val();
+  let $city = geocoder._form.city;
   let $suburb = $suburbSelect.val();
 
   if (marker != undefined) {
@@ -289,7 +295,7 @@ $(document).on("change","#suburbSelect",function(){
   marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(16);
-  $('#citySelect input').val($suburb +','+$city);
+  $('#citySelect input').val(`${$suburb}, ${$city}`);
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $suburb_lat);
@@ -316,10 +322,14 @@ $(document).on("change","#suburbSelect",function(){
   });
 });
 
-let $streetSelect = $("#streetSelect");
-$streetSelect.change(function () {
-  let $city = geocoder._form.innerText;
+
+$(document).on("change","#streetSelect",function(){
+// $streetSelect.change(function () {
+  // let $city = $('#citySelect input').val();
+  let $city = geocoder._form.city;
+  let $suburbSelect = $("#suburbSelect");
   let $suburb = $suburbSelect.val();
+  let $streetSelect = $("#streetSelect");
   let $street = $streetSelect.val();
   if (marker != undefined) {
     map.removeLayer(marker);
@@ -338,6 +348,7 @@ $streetSelect.change(function () {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(17);
+  $('#citySelect input').val(`${$street}, ${$suburb}, ${$city}`);
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $street_lat);
