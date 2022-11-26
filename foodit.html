@@ -202,8 +202,8 @@
       $("#myModal").modal("show");
       $("#citySelect input").val(element.currentTarget.value);
     });
-
-    $("#routingAddButton").click(function () {
+    $(document).on("click","#routingAddButton",function(){
+    // $("#routingAddButton").click(function () {
       // if (this.parentElement.parentElement.children[0].placeholder == "Start") {
       if ($(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "Start") {
         // routingControl.spliceWaypoints(
@@ -247,6 +247,7 @@
           },
         });
       }
+      $("#myModal").modal("hide");
     });
   </script>
 </html>

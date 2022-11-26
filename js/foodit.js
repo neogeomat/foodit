@@ -73,10 +73,11 @@ geocoder = L.Control.geocoder({
 }).addTo(map);
 geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
-  // debugger;
+  ;
   var selectedCountry = $("#countrySelect").val();
   if (!selectedCountry) {
-    // alert("Please select a country first");
+    alert("Please select a country first");
+    // desh select mayasang error mawaiyu
     geocoder.options.geocoder.__proto__.options = {};
     geocoder.options.geocoder.__proto__.options.nameProperties = ['name', 'street', 'suburb', 'hamlet', 'town', 'city', 'state', 'country'];
     results = geocoder.options.geocoder.__proto__._decodeFeatures(data);
@@ -91,26 +92,30 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
         var extent = f.properties.extent;
         var bbox = extent ? L.latLngBounds([extent[1], extent[0]], [extent[3], extent[2]])
           : L.latLngBounds(center, center);
+          ;
         results.push({
           name: this._decodeFeatureName(f),
           html: this.options.htmlTemplate ? this.options.htmlTemplate(f): undefined,
           center: center,
           bbox: bbox,
           properties: f.properties,
+          geo_state: f.properties.state?f.properties.state:''
         });
       }
     }
   }
   // console.log(data.features);
   // console.table(results);
+  
   return results;
 };
 geocoder.on("markgeocode", function (e) {
+  // debugger;
   // console.log(e);
   feature = e.geocode;
   let $city = feature.properties.name;
   // this.input.value = $city;
-  // debugger;
+  ;
   this._form.children[0].innerText = $city;
   // this._form.innerText = $city;
 
@@ -125,6 +130,7 @@ geocoder.on("markgeocode", function (e) {
   if (marker != undefined) {
     map.removeLayer(marker);
   }
+
   marker = L.marker([$city_lat, $city_lng]);
   marker.feature = {};
   marker.feature.type = 'Feature';
@@ -133,7 +139,7 @@ geocoder.on("markgeocode", function (e) {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
-  // debugger;
+  ;
   $('#citySelect input').val(feature.name);
   this._form.city = feature.name;
 
@@ -159,7 +165,7 @@ geocoder.on("markgeocode", function (e) {
           `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
         );
       });
-      // debugger;
+      ;
       $nearbyPlaceSelect.prop('disabled',false);
       map.spin(false);
     },
@@ -263,7 +269,7 @@ $(document).on("change","#nearbyPlaceSelect",function(){
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
-  // debugger;
+  ;
   geocoder._form.city = $city;
   $('#citySelect input').val($city);
 
@@ -618,6 +624,7 @@ function _optionallistdraw(optionalMarkerGroup){
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
+  // debugger;
   if (e.waypointIndex == 0) {
     $("#start").val(e.waypoint.name);
   } else if (e.waypointIndex == routingControl.getWaypoints().length - 1) {
@@ -640,6 +647,7 @@ function centerLeafletMapOnMarker(map, marker) {
 }
 
 routingControl.on('routesfound', route => {
+  // debugger
   // console.log(route);
   // map.spin(false);
   // map._spinner.stop();
@@ -671,7 +679,8 @@ routingControl.on('routesfound', route => {
     p.addLayer(marker);
   });
   // waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
-  waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(route.routes[0].inputWaypoints)},"optionalpoints":${JSON.stringify(optionalMarkerGroup.getLayers())}}`;
+  // debugger;
+  waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(routingControl.getWaypoints())},"optionalpoints":${JSON.stringify(optionalMarkerGroup.getLayers())}}`;
 
   var combinedExportDiv = document.getElementById('combinedExport');
   var e = L.geoJSON();
@@ -696,5 +705,16 @@ routingControl.on('routesfound', route => {
   });
   e.addLayer(L.polyline(route.routes[0].coordinates));
   // combinedExportDiv.innerHTML = `<div>${JSON.stringify(e.toGeoJSON())}</div>`;
-  // debugger;
+  ;
 });
+
+routingControl.getPlan().on('waypointsspliced',wp=>{
+  geocoder.options.geocoder.reverse(wp.added[0].latLng, 18, (e) => {
+    // debugger
+    console.log(e);
+    routingControl.getWaypoints()[wp.index].options = e[0];
+    // debugger
+    // optionalMarker.name = e[0].name;
+    // _optionallistdraw(optionalMarkerGroup);
+  });
+})
