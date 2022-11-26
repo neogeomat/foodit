@@ -52,6 +52,7 @@ osm = new L.Control.Geocoder.Nominatim({
 geocoder = L.Control.geocoder({
   collapsed: false,
   suggestMinLength: 3,
+  placeholder: 'Enter name of city',
   errorMessage: "error",
   geocoder: L.Control.Geocoder.photon({
     geocodingQueryParams: {
@@ -157,6 +158,8 @@ geocoder.on("markgeocode", function (e) {
           `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
         );
       });
+      // debugger;
+      $nearbyPlaceSelect.prop('disabled',false);
       map.spin(false);
     },
     error: function (error) {
@@ -184,6 +187,7 @@ geocoder.on("markgeocode", function (e) {
           `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
         );
       });
+      $suburbSelect.prop('disabled',false);
       map.spin(false);
     },
   }).fail(function (error) {
@@ -209,6 +213,7 @@ geocoder.on("markgeocode", function (e) {
           `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
         );
       });
+      $streetSelect.prop('disabled',false);
       map.spin(false);
     })
     .fail(function (error) {
@@ -239,7 +244,8 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
 
 let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
-$nearbyPlaceSelect.change(function () {
+$(document).on("change","#nearbyPlaceSelect",function(){
+// $nearbyPlaceSelect.change(function () {
   let $city = $nearbyPlaceSelect.val();
   let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
   let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
@@ -261,8 +267,9 @@ $nearbyPlaceSelect.change(function () {
   $("#routingAddButton").attr("data-lng", $city_lng);
 });
 
-let $suburbSelect = $("#suburbSelect");
-$suburbSelect.change(function () {
+$(document).on("change","#suburbSelect",function(){
+  let $suburbSelect = $("#suburbSelect");
+// $suburbSelect.change(function () {
   let $city = geocoder._form.innerText;
   let $suburb = $suburbSelect.val();
 
@@ -282,6 +289,7 @@ $suburbSelect.change(function () {
   marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(16);
+  $('#citySelect input').val($suburb +','+$city);
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $suburb_lat);
@@ -294,7 +302,7 @@ $suburbSelect.change(function () {
 
   $streetSelect.empty();
   $streetSelect.append(`<option value="">Select a street</option>`);
-  let url = $overpassUrl + encodeURIComponent(query);
+  let url = $overpassUrl + encodeURIComponent(streetQuery);
   $.get(url, function (data) {
     // console.log("suburb", data);
     data = data.split("\n");
