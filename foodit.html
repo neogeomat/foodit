@@ -183,9 +183,14 @@
   <script src="js/spin.min.js"></script>
   <script src="js/leaflet.spin.js"></script>
   <script src="js/leaflet.photon.js"></script>
+  <!-- <script src="js/csv.js"></script> -->
+  <!-- <script type="module">
+    import { parse } from '/js/csv.js';
+  </script> -->
   <script src="js/foodit.js"></script>
   <script src="js/retrieveMap.js"></script>
-  <script>
+  <script type="module">
+    import { parse } from '/js/csv.js';
     var $startInput = $("#start");
     var $endInput = $("#end");
     var $intermediateInput = $("#intermediate");
@@ -198,9 +203,55 @@
       // $input.select();
       // element.target.after($selectMenu[0]);
       var placeholder=$(this).attr("placeholder");
-      $("#routing_modal_body").html('<div id="selectMenu" class="form-group"><input type="hidden" class="placeholder_field" placeholder="'+placeholder+'" /><select id="countrySelect" class="form-control"><option value="">Select a country</option><option value="FR">France</option><option value="DE">Germany</option></select><div id="citySelect" class="form-group mt-3"></div><select id="nearbyPlaceSelect" class="form-control mt-3" disabled><option value="">Select nearby city</option></select><select id="suburbSelect" class="form-control mt-3" disabled><option value="">Select a suburb</option></select><select id="streetSelect" class="form-control mt-3" disabled><option value="">Select a Street</option></select><button id="routingAddButton" class="btn btn-success pull-right mt-3" >Add to Routing</button></div>');
+      $("#routing_modal_body").html(''
+        +'<div id="selectMenu" class="form-group">'
+          +'<input type="hidden" class="placeholder_field" placeholder="'+placeholder+'" />'
+          +'<select id="countrySelect" class="form-control">'
+            +'<option value="">Select a country</option>'
+            +'<option value="FR">France</option>'
+            +'<option value="DE">Germany</option>'
+          +'</select>'
+          +'<select id="citySelect" class="form-control mt-3" >'
+            +'<option value="">Select nearby city</option>'
+          +'</select>'
+          +'<select id="nearbyPlaceSelect" class="form-control mt-3" disabled>'
+            +'<option value="">Select nearby city</option>'
+          +'</select>'
+          +'<select id="suburbSelect" class="form-control mt-3" disabled>'
+            +'<option value="">Select a suburb</option>'
+          +'</select>'
+          +'<select id="streetSelect" class="form-control mt-3" disabled>'
+            +'<option value="">Select a Street</option>'
+          +'</select>'
+          +'<button id="routingAddButton" class="btn btn-success pull-right mt-3" >Add to Routing</button>'
+        +'</div>');
       $("#myModal").modal("show");
       $("#citySelect input").val(element.currentTarget.value);
+
+      
+      $.get( "data/cities_only.csv", function( CSVdata) {
+        // CSVdata is populated with the file contents...
+        // ...ready to be converted into an Array
+          // data = $.csv.toArray(CSVdata);
+          console.log(CSVdata);
+          let $citySelect = $('#citySelect');
+          const parsed = parse(CSVdata);
+          console.log(parsed);
+          parsed.forEach(entry => {
+            console.log(entry[1]);
+            const $opt = $('<option>',{
+              value: entry[1],
+              text: entry[1],
+              'data-cat': entry[2],
+              'data-lat': entry[3],
+              'data-lng': entry[4]
+            });
+            $citySelect.append($opt);
+            // debugger;
+
+          })
+          // debugger;
+      });
     });
     $(document).on("click","#routingAddButton",function(){
     // $("#routingAddButton").click(function () {

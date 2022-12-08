@@ -236,7 +236,7 @@ geocoder.on("markgeocode", function (e) {
 });
 
 $(document).on('show.bs.modal','#myModal', function () {
-  document.getElementById("citySelect").appendChild(geocoder.getContainer());
+  // document.getElementById("citySelect").appendChild(geocoder.getContainer());
 });
 
 map.on("click", function (e) {
