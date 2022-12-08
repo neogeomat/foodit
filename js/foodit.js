@@ -109,23 +109,23 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
   
   return results;
 };
-geocoder.on("markgeocode", function (e) {
+// geocoder.on("markgeocode", function (e) {
+  // feature = e.geocode;
+  // let $city = feature.properties.name;
+  // let $city_lat = feature.center.lat;
+  // let $city_lng = feature.center.lng;
+$(document).on("change","#citySelect",function(e){
   // debugger;
   // console.log(e);
-  feature = e.geocode;
-  let $city = feature.properties.name;
-  // this.input.value = $city;
-  ;
-  this._form.children[0].innerText = $city;
-  // this._form.innerText = $city;
-
+  let $city = $('#citySelect').val();
+  console.log($city);
+  // this._form.children[0].innerText = $city;
   // //get selected latlng
-  // let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
-  // let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+  let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+  let $city_lng = parseFloat($(this).find(":selected").attr("data-lng"));
   // let $city_lat = feature.geometry.coordinates[1];
   // let $city_lng = feature.geometry.coordinates[0];
-  let $city_lat = feature.center.lat;
-  let $city_lng = feature.center.lng;
+
 
   if (marker != undefined) {
     map.removeLayer(marker);
@@ -139,9 +139,10 @@ geocoder.on("markgeocode", function (e) {
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
-  ;
-  $('#citySelect input').val(feature.name);
-  this._form.city = feature.name;
+  
+  // $('#citySelect input').val(feature.name);
+  $('#citySelect input').val($city);
+  // this._form.city = feature.name;
 
   // load nearby citys
   let $nearbyPlaceSelect = $("#nearbyPlaceSelect");
