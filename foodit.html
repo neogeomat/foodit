@@ -212,7 +212,7 @@
             +'<option value="DE">Germany</option>'
           +'</select>'
           +'<select id="citySelect" class="form-control mt-3" >'
-            +'<option value="">Select nearby city</option>'
+            +'<option value="">Select city</option>'
           +'</select>'
           +'<select id="nearbyPlaceSelect" class="form-control mt-3" disabled>'
             +'<option value="">Select nearby city</option>'
@@ -222,6 +222,12 @@
           +'</select>'
           +'<select id="streetSelect" class="form-control mt-3" disabled>'
             +'<option value="">Select a Street</option>'
+          +'</select>'
+          // +'<select id="postcodeSelect" class="form-control mt-3" disabled>'
+          //   +'<option value="">Select a Postcode</option>'
+          // +'</select>'
+          +'<select id="houseNumberSelect" class="form-control mt-3" disabled>'
+            +'<option value="">Select a House Number</option>'
           +'</select>'
           +'<button id="routingAddButton" class="btn btn-success pull-right mt-3" >Add to Routing</button>'
         +'</div>');
@@ -233,12 +239,12 @@
         // CSVdata is populated with the file contents...
         // ...ready to be converted into an Array
           // data = $.csv.toArray(CSVdata);
-          console.log(CSVdata);
+          // console.log(CSVdata);
           let $citySelect = $('#citySelect');
           const parsed = parse(CSVdata);
-          console.log(parsed);
+          // console.log(parsed);
           parsed.forEach(entry => {
-            console.log(entry[1]);
+            // console.log(entry[1]);
             const $opt = $('<option>',{
               value: entry[1],
               text: entry[1],
@@ -263,6 +269,13 @@
         //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
         // );
         startMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
+        
+        routingControl.getWaypoints()[0]['userdata'] ={
+          'country':$('#countrySelect').val()||'',
+          'city':'testcity'||'',
+          'suburb':''||'',
+          'street':'streettest'||''
+        }
       } else if (
         // this.parentElement.parentElement.children[0].placeholder == "End"
         $(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "End"

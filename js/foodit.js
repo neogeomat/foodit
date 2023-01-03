@@ -73,7 +73,6 @@ geocoder = L.Control.geocoder({
 }).addTo(map);
 geocoder.options.geocoder._decodeFeatures = function (data) {
   var results = [];
-  ;
   var selectedCountry = $("#countrySelect").val();
   if (!selectedCountry) {
     alert("Please select a country first");
@@ -92,14 +91,13 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
         var extent = f.properties.extent;
         var bbox = extent ? L.latLngBounds([extent[1], extent[0]], [extent[3], extent[2]])
           : L.latLngBounds(center, center);
-          ;
         results.push({
           name: this._decodeFeatureName(f),
           html: this.options.htmlTemplate ? this.options.htmlTemplate(f): undefined,
           center: center,
           bbox: bbox,
-          properties: f.properties,
-          geo_state: f.properties.state?f.properties.state:''
+          // properties: f.properties,
+          // geo_state: f.properties.state?f.properties.state:''
         });
       }
     }
@@ -158,7 +156,7 @@ $(document).on("change","#citySelect",function(e){
     },
     success: function (data) {
       console.log("Nearby cities loaded");
-      // console.log(data);
+      console.log(data);
       data = data.split("\n");
       data.forEach(function (item) {
         item = item.split("@");
@@ -166,7 +164,6 @@ $(document).on("change","#citySelect",function(e){
           `<option value='${item[0]}' data-lat="${item[1]}" data-lng="${item[2]}">${item[0]}</option>`
         );
       });
-      ;
       $nearbyPlaceSelect.prop('disabled',false);
       map.spin(false);
     },
@@ -230,12 +227,13 @@ $(document).on("change","#citySelect",function(e){
       alert("Error loading suburbs");
       map.spin(false);
     });
+  
+  // load house numbers
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $city_lat);
   $("#routingAddButton").attr("data-lng", $city_lng);
 });
-
 $(document).on('show.bs.modal','#myModal', function () {
   // document.getElementById("citySelect").appendChild(geocoder.getContainer());
 });
@@ -250,8 +248,8 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   subdomains: ["a", "b", "c"],
 }).addTo(map);
 
-// let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
-let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
+let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
+// let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
 
 $(document).on("change","#nearbyPlaceSelect",function(){
 // $nearbyPlaceSelect.change(function () {
@@ -270,7 +268,6 @@ $(document).on("change","#nearbyPlaceSelect",function(){
   // marker.addTo(map);
   centerLeafletMapOnMarker(map, marker);
   map.setZoom(15);
-  ;
   geocoder._form.city = $city;
   $('#citySelect input').val($city);
 
@@ -329,7 +326,6 @@ $(document).on("change","#suburbSelect",function(){
   });
 });
 
-
 $(document).on("change","#streetSelect",function(){
 // $streetSelect.change(function () {
   // let $city = $('#citySelect input').val();
@@ -360,6 +356,12 @@ $(document).on("change","#streetSelect",function(){
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $street_lat);
   $("#routingAddButton").attr("data-lng", $street_lng);
+
+  // query and add house numbers in that street
+  
+});
+
+$(document).on("change","#houseNumberSelect",function(){
 });
 
 // routing
