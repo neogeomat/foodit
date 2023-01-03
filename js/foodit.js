@@ -98,8 +98,8 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
           html: this.options.htmlTemplate ? this.options.htmlTemplate(f): undefined,
           center: center,
           bbox: bbox,
-          // properties: f.properties,
-          // geo_state: f.properties.state?f.properties.state:''
+          properties: f.properties,
+          geo_state: f.properties.state?f.properties.state:''
         });
       }
     }
@@ -227,15 +227,29 @@ $(document).on("change","#citySelect",function(e){
       alert("Error loading suburbs");
       map.spin(false);
     });
-  
-  // load house numbers
 
   // add coordinates to button
   $("#routingAddButton").attr("data-lat", $city_lat);
   $("#routingAddButton").attr("data-lng", $city_lng);
 });
+
 $(document).on('show.bs.modal','#myModal', function () {
-  // document.getElementById("citySelect").appendChild(geocoder.getContainer());
+  $.ajax({
+    url:"ajax/ride_sharing/get_cities.php",
+    method:"post",
+    dataType:"json",
+    success:function(data){
+      $("#citySelect").html(data.options)
+    }
+  }).then(function(){
+    var edit_lat=$("#edit_lat").val();
+    var edit_lng=$("#edit_lng").val();
+    if (edit_lat!="" || edit_lng!="") {
+      $.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+edit_lat+'&lon='+edit_lng, function(data){
+          console.log(data.address);
+      });
+    }
+  });
 });
 
 map.on("click", function (e) {
@@ -248,8 +262,8 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   subdomains: ["a", "b", "c"],
 }).addTo(map);
 
-let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
-// let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
+// let $overpassUrl = "https://overpass-api.de/api/interpreter?data=";
+let $overpassUrl = "https://overpass.kumi.systems/api/interpreter?data=";
 
 $(document).on("change","#nearbyPlaceSelect",function(){
 // $nearbyPlaceSelect.change(function () {
@@ -384,7 +398,6 @@ $(document).on("change","#streetSelect",function(){
     });
     $houseNumberSelect.prop('disabled', false);
   });
-  
 });
 
 $(document).on("change","#houseNumberSelect",function(){
@@ -682,14 +695,21 @@ function _optionallistdraw(optionalMarkerGroup){
 }
 
 routingControl.getPlan().on("waypointgeocoded", function (e) {
-  // debugger;
+  var placelat=e.waypoint.latLng.lat;
+  var placelng=e.waypoint.latLng.lng;
   if (e.waypointIndex == 0) {
-    // debugger;
     $("#start").val(e.waypoint.name);
+    $("#start").attr("lat",placelat);
+    $("#start").attr("lng",placelng);
   } else if (e.waypointIndex == routingControl.getWaypoints().length - 1) {
     $("#end").val(e.waypoint.name);
+    $("#end").attr("lat",placelat);
+    $("#end").attr("lng",placelng);
   } else {
     $("#intermediate" + e.waypointIndex).val(e.waypoint.name);
+    $("#intermediate" + e.waypointIndex).attr("lat",placelat);
+    $("#intermediate" + e.waypointIndex).attr("lng",placelng);
+    // console.log($("#intermediate"+e.waypointIndex));
   }
 });
 function closeMap(e) {
@@ -764,7 +784,7 @@ routingControl.on('routesfound', route => {
 routingControl.getPlan().on('waypointsspliced',wp=>{
   geocoder.options.geocoder.reverse(wp.added[0].latLng, 18, (e) => {
     // debugger
-    console.log(e);
+    // console.log(e);
     routingControl.getWaypoints()[wp.index].options = e[0];
     // debugger
     // optionalMarker.name = e[0].name;
