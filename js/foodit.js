@@ -8,6 +8,8 @@ const $overpass_radius = 1500;
 
 const $overpass_radius_suburb = 5000;
 
+const $houseNumber_buffer = 20;
+
 let map = L.map("map", {
   center: [53.03885, 8.837961],
   minZoom: 2,
@@ -102,8 +104,6 @@ geocoder.options.geocoder._decodeFeatures = function (data) {
       }
     }
   }
-  // console.log(data.features);
-  // console.table(results);
   
   return results;
 };
@@ -116,7 +116,7 @@ $(document).on("change","#citySelect",function(e){
   // debugger;
   // console.log(e);
   let $city = $('#citySelect').val();
-  console.log($city);
+  // console.log($city);
   // this._form.children[0].innerText = $city;
   // //get selected latlng
   let $city_lat = parseFloat($(this).find(":selected").attr("data-lat"));
@@ -156,7 +156,7 @@ $(document).on("change","#citySelect",function(e){
     },
     success: function (data) {
       console.log("Nearby cities loaded");
-      console.log(data);
+      // console.log(data);
       data = data.split("\n");
       data.forEach(function (item) {
         item = item.split("@");
@@ -203,7 +203,7 @@ $(document).on("change","#citySelect",function(e){
 
   // load streets
   let $streetSelect = $("#streetSelect");
-  let streetQuery = `[out:csv(name,::lat,::lon;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
+  let streetQuery = `[out:csv(name,::lat,::lon,::id;false;'@')];area[name="${$city}"];(way[highway][name](around:${$overpass_radius},${$city_lat},${$city_lng}););out center;`;
 
   url = $overpassUrl + encodeURIComponent(streetQuery);
 
@@ -217,7 +217,7 @@ $(document).on("change","#citySelect",function(e){
       data.forEach(function (item) {
         item = item.split("@");
         $streetSelect.append(
-          `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+          `<option value="${item[0]}" data-lat="${item[1]}" data-lng="${item[2]}" data-osmid="${item[3]}">${item[0]}</option>`
         );
       });
       $streetSelect.prop('disabled',false);
@@ -358,10 +358,66 @@ $(document).on("change","#streetSelect",function(){
   $("#routingAddButton").attr("data-lng", $street_lng);
 
   // query and add house numbers in that street
+  let $street_osmid = parseFloat($(this).find(":selected").attr("data-osmid"));
+
+  let houseNumberQuery = `[out:csv('addr:housenumber',::lat,::lon,::id,'addr:street';false;'@')];way[highway][name="${$street}"](around:${$overpass_radius},${$street_lat},${$street_lng});(._;>;)->.a;way["addr:housenumber"](around:${$houseNumber_buffer});out center;`;
+  console.log(houseNumberQuery);
+
+  let $houseNumberSelect = $('#houseNumberSelect');
+  $houseNumberSelect.empty();
+  $houseNumberSelect.append(`<option value="">Select a house number</option>`);
+  let url = $overpassUrl + encodeURIComponent(houseNumberQuery);
+  $.get(url, function(data){
+    console.log('house number loaded');
+    console.log(data);
+    data = data.split("\n");
+    let i = 1;
+    data.forEach(function(item){
+      item = item.split("@");
+      if(item[4] && item[4] != $street){
+
+      }else{
+        $houseNumberSelect.append(
+          `<option value="${item[0]}"data-lat="${item[1]}"data-lng="${item[2]}">${item[0]}</option>`
+        );
+      }
+    });
+    $houseNumberSelect.prop('disabled', false);
+  });
   
 });
 
 $(document).on("change","#houseNumberSelect",function(){
+  let $city = geocoder._form.city;
+  let $suburbSelect = $("#suburbSelect");
+  let $suburb = $suburbSelect.val();
+  let $streetSelect = $("#streetSelect");
+  let $street = $streetSelect.val();
+  let $houseNumberSelect = $('#houseNumberSelect');
+  let $houseNumber = $houseNumberSelect.val();
+  if (marker != undefined) {
+    map.removeLayer(marker);
+  }
+  //get selected latlng
+  let $houseNumber_lat = parseFloat($(this).find(":selected").attr("data-lat"));
+  let $houseNumber_lng = parseFloat($(this).find(":selected").attr("data-lng"));
+
+  marker = L.marker([$houseNumber_lat, $houseNumber_lng]);
+  marker.feature = {};
+  marker.feature.type = 'Feature';
+  marker.feature.properties = {};
+  marker.feature.properties['city'] = $city;
+  marker.feature.properties['suburb'] = $suburb;
+  marker.feature.properties['street'] = $street;
+  marker.feature.properties['house number'] = $houseNumber;
+
+  centerLeafletMapOnMarker(map, marker);
+  map.setZoom(18);
+  $('#citySelect input').val(`${$houseNumber}, ${$street}, ${$suburb}, ${$city}`);
+
+  // add coordinates to button
+  $("#routingAddButton").attr("data-lat", $houseNumber_lat);
+  $("#routingAddButton").attr("data-lng", $houseNumber_lng);
 });
 
 // routing
@@ -575,7 +631,6 @@ function removeintermediate(index) {
     ll[l].children[0].setAttribute('onchange','updateIntermediate('+i+')');
     ll[l].children[1].setAttribute('id','removeintermediate' + i);
     ll[l].children[1].setAttribute('onclick','removeintermediate('+i+')');
-    // console.log(ll[l]);
   });
 
   // let $removeEndButton = $('#removeEndBtn');
@@ -629,12 +684,12 @@ function _optionallistdraw(optionalMarkerGroup){
 routingControl.getPlan().on("waypointgeocoded", function (e) {
   // debugger;
   if (e.waypointIndex == 0) {
+    // debugger;
     $("#start").val(e.waypoint.name);
   } else if (e.waypointIndex == routingControl.getWaypoints().length - 1) {
     $("#end").val(e.waypoint.name);
   } else {
     $("#intermediate" + e.waypointIndex).val(e.waypoint.name);
-    // console.log($("#intermediate"+e.waypointIndex));
   }
 });
 function closeMap(e) {
@@ -650,11 +705,6 @@ function centerLeafletMapOnMarker(map, marker) {
 }
 
 routingControl.on('routesfound', route => {
-  // debugger
-  // console.log(route);
-  // map.spin(false);
-  // map._spinner.stop();
-  // setTimeout(function() { map.spin(false); }, 1000);
   var itineraryDiv = document.getElementById('routeExport');
   var g = L.geoJSON();
   g.addLayer(L.polyline(route.routes[0].coordinates));
