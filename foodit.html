@@ -269,12 +269,14 @@
         //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
         // );
         startMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
-        
+        // debugger;
+        // user nang thapeyagu data taneu
         routingControl.getWaypoints()[0]['userdata'] ={
           'country':$('#countrySelect').val()||'',
-          'city':'testcity'||'',
-          'suburb':''||'',
-          'street':'streettest'||''
+          'city':$('#citySelect').val()||'',
+          'suburb':$('#suburbSelect').val()||'',
+          'street':$('#streetSelect').val()||'',
+          'housenumber':$('#houseNumberSelect').val()||''
         }
       } else if (
         // this.parentElement.parentElement.children[0].placeholder == "End"
@@ -286,6 +288,13 @@
         //   L.latLng(this.getAttribute("data-lat"), this.getAttribute("data-lng"))
         // );
         endMap({'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]});
+        routingControl.getWaypoints()[routingControl.getWaypoints().length - 1]['userdata'] ={
+          'country':$('#countrySelect').val()||'',
+          'city':$('#citySelect').val()||'',
+          'suburb':$('#suburbSelect').val()||'',
+          'street':$('#streetSelect').val()||'',
+          'housenumber':$('#houseNumberSelect').val()||''
+        };
       } else if (
         // this.parentElement.parentElement.children[0].placeholder ==
         // "Intermediate"
@@ -300,6 +309,13 @@
         intermediateMap({
           'latlng':[this.getAttribute("data-lat"), this.getAttribute("data-lng")]
         });
+        routingControl.getWaypoints()[routingControl.getWaypoints().length - 2]['userdata'] ={
+          'country':$('#countrySelect').val()||'',
+          'city':$('#citySelect').val()||'',
+          'suburb':$('#suburbSelect').val()||'',
+          'street':$('#streetSelect').val()||'',
+          'housenumber':$('#houseNumberSelect').val()||''
+        };
       } else if (
         // this.parentElement.parentElement.children[0].placeholder == "Optional"
         $(this).closest("#selectMenu").find(".placeholder_field").attr("placeholder") == "Optional"

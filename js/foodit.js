@@ -485,7 +485,7 @@ var yellowIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-var optionalMarkerGroup = L.layerGroup().addTo(map);
+var optionalMarkerGroup = L.geoJSON().addTo(map);
 routingControl = L.Routing.control({
   geocodersClassName: "routing_geocoders",
   routeWhileDragging: true,
@@ -659,6 +659,7 @@ function optionalMap(e) {
     optionalMarker.name = e[0].name;
     _optionallistdraw(optionalMarkerGroup);
   });
+  // debugger;
   routingControl.fire('routesfound',{ routes: routingControl._routes});
 }
 
@@ -753,7 +754,7 @@ routingControl.on('routesfound', route => {
   });
   // waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
   // debugger;
-  waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(routingControl.getWaypoints())},"optionalpoints":${JSON.stringify(optionalMarkerGroup.getLayers())}}`;
+  waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(routingControl.getWaypoints())},"optionalpoints":${JSON.stringify(optionalMarkerGroup.toGeoJSON())}}`;
 
   var combinedExportDiv = document.getElementById('combinedExport');
   var e = L.geoJSON();
@@ -764,7 +765,6 @@ routingControl.on('routesfound', route => {
     marker.feature.type = 'Feature';
     marker.feature.properties = {};
     marker.feature.properties.type = 'routePoint';
-
     e.addLayer(marker);
   }
   optionalMarkerGroup.eachLayer(marker=>{
@@ -773,12 +773,10 @@ routingControl.on('routesfound', route => {
     marker.feature.type = 'Feature';    
     marker.feature.properties = {};
     marker.feature.properties.type = 'optionalPoint';
-
     e.addLayer(marker);
   });
   e.addLayer(L.polyline(route.routes[0].coordinates));
   // combinedExportDiv.innerHTML = `<div>${JSON.stringify(e.toGeoJSON())}</div>`;
-  ;
 });
 
 routingControl.getPlan().on('waypointsspliced',wp=>{
@@ -790,4 +788,4 @@ routingControl.getPlan().on('waypointsspliced',wp=>{
     // optionalMarker.name = e[0].name;
     // _optionallistdraw(optionalMarkerGroup);
   });
-})
+});
