@@ -625,7 +625,7 @@ function intermediateMap(e) {
   }
   // option to add more
   $li = $("<li>");
-  $input = $("<input>");
+  $input = $('<input placeholder="Intermediate" class="waypointAddresses">');
   $li.append($input);
   $("#intermediate").append($li);
 }
@@ -690,7 +690,7 @@ function _optionallistdraw(optionalMarkerGroup){
   }
   // option to add more
   $li = $("<li>");
-  $input = $("<input>");
+  $input = $('<input placeholder="Optional" class="waypointAddresses">');
   $li.append($input);
   $("#optional").append($li);
 }
@@ -743,15 +743,15 @@ routingControl.on('routesfound', route => {
 
     p.addLayer(marker);
   }
-  optionalMarkerGroup.eachLayer(marker=>{
-    console.log(marker);
-    marker.feature = {};
-    marker.feature.type = 'Feature';    
-    marker.feature.properties = {};
-    marker.feature.properties.type = 'optionalPoint';
+  // optionalMarkerGroup.eachLayer(marker=>{
+  //   console.log(marker);
+  //   marker.feature = {};
+  //   marker.feature.type = 'Feature';    
+  //   marker.feature.properties = {};
+  //   marker.feature.properties.type = 'optionalPoint';
 
-    p.addLayer(marker);
-  });
+  //   p.addLayer(marker);
+  // });
   // waypointsDiv.innerHTML = `<div>${JSON.stringify(p.toGeoJSON())}</div>`;
   // debugger;
   waypointsDiv.innerHTML = `{"routePoints":${JSON.stringify(routingControl.getWaypoints())},"optionalpoints":${JSON.stringify(optionalMarkerGroup.toGeoJSON())}}`;

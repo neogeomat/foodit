@@ -198,7 +198,9 @@
 
     var $selectMenu = $("#selectMenu");
     var $waypointAddressesInput = $(".waypointAddresses");
-    $waypointAddressesInput.click(function (element) {
+    $(document).on('click', '.waypointAddresses', function(element) {
+
+    // $waypointAddressesInput.click(function (element) {
       // var $input = $(element.target);
       // $input.select();
       // element.target.after($selectMenu[0]);
@@ -326,6 +328,16 @@
             lng: this.getAttribute("data-lng"),
           },
         });
+        
+        optionalMarkerGroup.getLayers()[optionalMarkerGroup.getLayers().length - 1].feature.properties['userdata'] ={
+          'country':$('#countrySelect').val()||'',
+          'city':$('#citySelect').val()||'',
+          'suburb':$('#suburbSelect').val()||'',
+          'street':$('#streetSelect').val()||'',
+          'housenumber':$('#houseNumberSelect').val()||''
+        };
+        // debugger;
+        routingControl.fire('routesfound',{ routes: routingControl._routes});
       }
       $("#myModal").modal("hide");
     });
